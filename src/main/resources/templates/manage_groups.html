@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Student Groups</title>
+</head>
+<body>
+<div class = groups_container>
+    <input id="groupInput" type="text" name="group_search" placeholder="Search groups">
+    <div class = groups th:each="group: ${groups}">
+        <a th:href="@{../group/{id}/group_view(id=${group.id})}" th:text="${group.name}" th:id="${group.id}"><br></a>
+    </div>
+</div>
+<div>
+    <p>Create a new Group:</p>
+    <form method="post" autocomplete="off">
+        <label for="name">Group Name</label>
+        <input type="text" placeholder="Enter group name" name="name" id="name" required/>
+        <div class="autocomplete" style="width:300px;" id="stud">
+            <input id="studentInput" type="text" name="student_search" placeholder="Search students">
+        </div>
+        <button id="save_btn" type="f">Save</button>
+    </form>
+    <script th:inline="javascript">
+        function filter(inp) {
+            inp.addEventListener("input", function (e) {
+                var val = this.value;
+                var list = document.getElementsByClassName("groups");
+                if (!val) {
+                    for (var i=0; i<list.length; i++) {
+                        list.item(i).firstElementChild.removeAttribute("hidden");
+                    }
+                }
+                for (var i=0; i<list.length; i++) {
+                    if (list.item(i).firstElementChild.innerHTML.substr(0, val.length).toUpperCase() != val.toUpperCase()) {
+                        list.item(i).firstElementChild.setAttribute("hidden", "true");
+                    } else {
+                        list.item(i).firstElementChild.removeAttribute("hidden");
+                    }
+                }
+            })
+        }
+
+        function autocomplete(inp, arr_names, arr_val) {
+            var currentFocus;
+            inp.addEventListener("input", function(e) {
+                var a, b, i, val = this.value;
+                closeAllLists();
+                if (!val) { return false;}
+                currentFocus = -1;
+                a = document.createElement("DIV");
+                a.setAttribute("id", this.id + "autocomplete-list");
+                a.setAttribute("class", "autocomplete-items");
+                this.parentNode.appendChild(a);
+                for (i = 0; i < arr_names.length; i++) {
+                    if (arr_names[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                        b = document.createElement("DIV");
+                        b.innerHTML = "<strong>" + arr_names[i].substr(0, val.length) + "</strong>";
+                        b.innerHTML += arr_names[i].substr(val.length);
+                        b.innerHTML += "<input type='hidden' name='students' value='" + arr_val[i] + "'>";
+                        b.addEventListener("click", function(e) {
+                            this.innerHTML = this.innerHTML.replace("<strong>", "");
+                            this.innerHTML = this.innerHTML.replace("</strong>", "");
+                            var list = document.getElementById("stud")
+                            list.insertBefore(this, list.firstChild);
+                            closeAllLists();
+                        });
+                        a.appendChild(b);
+                    }
+                }
+            });
+
+            inp.addEventListener("keydown", function(e) {
+                var x = document.getElementById(this.id + "autocomplete-list");
+                if (x) x = x.getElementsByTagName("div");
+                if (e.keyCode == 40) {
+                    currentFocus++;
+                    addActive(x);
+                } else if (e.keyCode == 38) {
+                    currentFocus--;
+                    addActive(x);
+                } else if (e.keyCode == 13) {
+                    e.preventDefault();
+                    if (currentFocus > -1) {
+                        if (x) x[currentFocus].click();
+                    }
+                }
+            });
+            function addActive(x) {
+                if (!x) return false;
+                removeActive(x);
+                if (currentFocus >= x.length) currentFocus = 0;
+                if (currentFocus < 0) currentFocus = (x.length - 1);
+                x[currentFocus].classList.add("autocomplete-active");
+            }
+            function removeActive(x) {
+                for (var i = 0; i < x.length; i++) {
+                    x[i].classList.remove("autocomplete-active");
+                }
+            }
+            function closeAllLists(elmnt) {
+                var x = document.getElementsByClassName("autocomplete-items");
+                for (var i = 0; i < x.length; i++) {
+                    if (elmnt != x[i] && elmnt != inp) {
+                        x[i].parentNode.removeChild(x[i]);
+                    }
+                }
+            }
+            document.addEventListener("click", function (e) {
+                closeAllLists(e.target);
+            });
+        }
+
+
+        var studentnames = [[${studentnames}]];
+        var studentvalues = [[${studentvalues}]];
+        filter(document.getElementById("groupInput"));
+        autocomplete(document.getElementById("studentInput"), studentnames, studentvalues);
+    </script>
+</div>
+</body>
+</html>

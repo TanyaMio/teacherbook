@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Students</title>
+</head>
+<body>
+<div class = students_container>
+    <div class = students th:each="student: ${students}">
+        <a th:href="@{./student/{id}(id=${student.student_id})}" th:text="${student.fullname}" th:id="${student.student_id}"><br></a>
+    </div>
+</div>
+<div>
+    <p>Add a student</p>
+    <form method="post">
+        <label for="name1"><b>First Name</b></label>
+        <input type="text" placeholder="Enter First name" name="name1" id="name1" required/>
+        <label for="name2"><b>Last Name</b></label>
+        <input type="text" placeholder="Enter Last name" name="name2" id="name2" required/>
+        <label for="login"><b>Login</b></label>
+        <input type="text" placeholder="Enter login" name="login" id="login" required/>
+        <p>Login is an alphanumeric string unique to a specific student within the school.</p>
+        <p>
+            <label for="psw"><b>Password</b></label>
+            <input type="password" placeholder="Enter Password" name="password" id="psw" required/>
+            <input type="password" placeholder="Confirm Password" name="password2" id="psw2" required/>
+            <button id="reg_btn" type="f">Save student</button>
+    </form>
+</div>
+</body>
+</html>

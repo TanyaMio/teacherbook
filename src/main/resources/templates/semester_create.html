@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Set up a new semester</title>
+</head>
+<body>
+<form method="post">
+    <p>
+        <label for="name"><b>Semester name</b></label>
+        <input type="text" placeholder="Enter the name of the semester" name="name" id="name" required/>
+    </p>
+    <p>
+        <label for="start_date">Semester start date</label>
+        <input type="date" id="start_date" name="start_date"
+               min="2022-01-01" required>
+        <label for="end_date">Semester end date</label>
+        <input type="date" id="end_date" name="end_date"
+               min="2022-01-01" required>
+    </p>
+    <p>
+        <label for="rotation_len"><b>Rotation length</b></label>
+        <input type="number" placeholder="Rotation length" name="rotation_len" id="rotation_len" required>
+        <p>Rotation length describes how many unique days there are in your school's schedule. If you have the same schedule every day - enter 1. If you have 5 different schedules Mon-Fri, that repeat each week - enter 5, etc.</p>
+    </p>
+    <p>
+        <label for="n_timeslots">Please, enter the maximum number of timeslots in one day</label>
+        <input type="number" placeholder="Number of timeslots" name="n_timeslots" id="n_timeslots" required/>
+    </p>
+    <legend>Choose all workdays</legend>
+    <div>
+        <input type="checkbox" id="monday" name="workdays" value="monday">
+        <label for="monday">Monday</label>
+    </div>
+    <div>
+        <input type="checkbox" id="tuesday" name="workdays" value="tuesday">
+        <label for="tuesday">Tuesday</label>
+    </div>
+    <div>
+        <input type="checkbox" id="wednesday" name="workdays" value="wednesday">
+        <label for="wednesday">Wednesday</label>
+    </div>
+    <div>
+        <input type="checkbox" id="thursday" name="workdays" value="thursday">
+        <label for="thursday">Thursday</label>
+    </div>
+    <div>
+        <input type="checkbox" id="friday" name="workdays" value="friday">
+        <label for="friday">Friday</label>
+    </div>
+    <div>
+        <input type="checkbox" id="saturday" name="workdays" value="saturday">
+        <label for="saturday">Saturday</label>
+    </div>
+    <div>
+        <input type="checkbox" id="sunday" name="workdays" value="sunday">
+        <label for="sunday">Sunday</label>
+    </div>
+
+    <button id="reg_btn" type="f">Create semester</button>
+</form>
+
+</body>
+</html>

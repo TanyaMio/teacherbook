@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Semester Calendar</title>
+</head>
+<body>
+<a href="./rotation_config">Rename Rotation Days</a>
+<a href="./edit_timeslots">Edit Timeslots</a>
+<div>
+    <p>Edit schedule for:</p>
+    <form method="post" autocomplete="off">
+        <input type="radio" name="for_a" id="group" value="group" onchange="radio_change(this)"/>
+        <label for="group">Group: </label>
+        <input id="groupInput" type="text" name="name" placeholder="Search groups" disabled/>
+        <br/>
+        <input type="radio" name="for_a" id="teacher" value="teacher" onchange="radio_change(this)"/>
+        <label for="teacher">Teacher: </label>
+        <input id="teacherInput" type="text" name="name" placeholder="Search teachers" disabled/>
+        <br/>
+        <button type="f">Go To Schedule</button>
+    </form>
+</div>
+<script th:inline="javascript">
+
+    function radio_change(e) {
+        var inp_id = e.getAttribute("id") + "Input";
+        var inp = document.getElementById(inp_id);
+        inp.disabled =  !e.checked;
+        var radios = document.getElementsByName("for_a");
+        for (var i=0; i<radios.length; i++) {
+            if (radios[i] === e) {
+                continue;
+            } else {
+                inp_id = radios[i].getAttribute("id") + "Input";
+                inp = document.getElementById(inp_id);
+                inp.value = "";
+                inp.disabled = !radios[i].checked;
+            }
+        }
+    }
+
+    function autocomplete(inp, arr_names) {
+        var currentFocus;
+        inp.addEventListener("input", function(e) {
+            var a, b, i, val = this.value;
+            closeAllLists();
+            if (!val) { return false;}
+            currentFocus = -1;
+            a = document.createElement("DIV");
+            a.setAttribute("id", this.id + "autocomplete-list");
+            a.setAttribute("class", "autocomplete-items");
+            this.parentNode.appendChild(a);
+            for (i = 0; i < arr_names.length; i++) {
+                if (arr_names[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                    b = document.createElement("DIV");
+                    b.innerHTML = "<strong>" + arr_names[i].substr(0, val.length) + "</strong>";
+                    b.innerHTML += arr_names[i].substr(val.length);
+                    b.innerHTML += "<input type='hidden' name='group_name' value='" + arr_names[i] + "'/>";
+                    b.addEventListener("click", function(e) {
+                        this.innerHTML = this.innerHTML.replace("<strong>", "");
+                        this.innerHTML = this.innerHTML.replace("</strong>", "");
+                        inp.value = this.getElementsByTagName("input")[0].value;
+                        closeAllLists();
+                    });
+                    a.appendChild(b);
+                }
+            }
+        });
+
+        inp.addEventListener("keydown", function(e) {
+            var x = document.getElementById(this.id + "autocomplete-list");
+            if (x) x = x.getElementsByTagName("div");
+            if (e.keyCode == 40) {
+                currentFocus++;
+                addActive(x);
+            } else if (e.keyCode == 38) {
+                currentFocus--;
+                addActive(x);
+            } else if (e.keyCode == 13) {
+                e.preventDefault();
+                if (currentFocus > -1) {
+                    if (x) x[currentFocus].click();
+                }
+            }
+        });
+        function addActive(x) {
+            if (!x) return false;
+            removeActive(x);
+            if (currentFocus >= x.length) currentFocus = 0;
+            if (currentFocus < 0) currentFocus = (x.length - 1);
+            x[currentFocus].classList.add("autocomplete-active");
+        }
+        function removeActive(x) {
+            for (var i = 0; i < x.length; i++) {
+                x[i].classList.remove("autocomplete-active");
+            }
+        }
+        function closeAllLists(elmnt) {
+            var x = document.getElementsByClassName("autocomplete-items");
+            for (var i = 0; i < x.length; i++) {
+                if (elmnt != x[i] && elmnt != inp) {
+                    x[i].parentNode.removeChild(x[i]);
+                }
+            }
+        }
+        document.addEventListener("click", function (e) {
+            closeAllLists(e.target);
+        });
+    }
+
+
+    var groupnames = [[${groupnames}]];
+    autocomplete(document.getElementById("groupInput"), groupnames);
+    var teachernames = [[${teachernames}]];
+    autocomplete(document.getElementById("teacherInput"), teachernames);
+</script>
+<div th:each="calendar: ${calendars}">
+    <div th:each="month: ${calendar.keySet()}">
+        <p><b th:text="${month}"></b></p>
+        <table>
+            <tr th:each="row: ${calendar.get(month)}">
+                <td th:each="data: ${row}">
+                    <div style="white-space: pre-line" th:text="${data}"></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

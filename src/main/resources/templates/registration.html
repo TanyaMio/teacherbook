@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form method="post">
+    <label for="name"><b>Institution Name</b></label>
+    <input type="text" placeholder="Enter Institution Name" name="name" id="name" required/>
+    <label for="email"><b>Email</b></label>
+    <input type="text" placeholder="Enter Email" name="email" id="email" required/>
+    <p>
+        <label for="psw"><b>Password</b></label>
+        <input type="password" placeholder="Enter Password" name="password" id="psw" required/>
+        <input type="password" placeholder="Confirm Password" name="password2" id="psw2" required/>
+        <button id="reg_btn" type="f">Register</button>
+    <p>Already have an account? <a href="/admin_login">Log In</a>.</p>
+</form>
+<!--<script>
+    var emailIsValid = false;
+    var passIsValid = false;
+    var passMatch = false;
+
+    function checkEmail () {
+        const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        const input = document.getElementById("email").value;
+
+        if(re.test(String(input).toLowerCase())){
+            emailIsValid = true;
+            document.getElementById('emailError').innerHTML = "";
+        } else{
+            document.getElementById('emailError').innerHTML = "Email is invalid.";
+        }
+        btnEnable();
+    }
+
+    function checkPassLength () {
+        const input = document.getElementById("psw");
+
+        var lowerCaseLetters = /[a-z]/g;
+        var capitalLetters = /[A-Z]/g;
+        var numbers = /[0-9]/g;
+        if(!input.value.match(lowerCaseLetters)){
+            var msg = "Password must include lower case letters.";
+            document.getElementById('password_Error').innerHTML = msg;
+        } else if(!input.value.match(capitalLetters)){
+            var msg = "Password must include capital letters.";
+            document.getElementById('password_Error').innerHTML = msg;
+        } else if(!input.value.match(numbers)){
+            var msg = "Password must include numbers.";
+            document.getElementById('password_Error').innerHTML = msg;
+        } else if(input.value.length < 6){
+            var msg = "Password must be at least 6 characters.";
+            document.getElementById('password_Error').innerHTML = msg;
+        } else if(input.value.length > 30){
+            var msg = "Password must be less than 30 characters.";
+            document.getElementById('password_Error').innerHTML = msg;
+        } else {
+            document.getElementById('password_Error').innerHTML = "";
+            passIsValid = true;
+        }
+        checkPassMatch();
+    }
+
+    function checkPassMatch () {
+        const input1 = document.getElementById("psw");
+        const input2 = document.getElementById("psw2");
+
+        if(input1.value != input2.value){
+            document.getElementById('password_MatchError').innerHTML = "Passwords don't match.";
+        } else {
+            document.getElementById('password_MatchError').innerHTML = "";
+            passMatch = true;
+        }
+        btnEnable();
+    }
+
+    function btnEnable(){
+        if(emailIsValid && passIsValid && passMatch)
+            document.getElementById('reg_btn').disabled = false;
+        else
+            document.getElementById('reg_btn').disabled = true;
+    }
+</script>-->
+</body>
+</html>

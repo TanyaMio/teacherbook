@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Teachers</title>
+</head>
+<body>
+<div class = teachers_container>
+    <div class = teachers th:each="teacher: ${teachers}">
+    <a th:href="@{./teacher/{id}(id=${teacher.teacher_id})}" th:text="${teacher.fullname}" th:id="${teacher.teacher_id}"><br></a>
+    </div>
+</div>
+<div>
+    <a href="./teacher_invite"> Invite a new teacher </a></div>
+</div>
+</body>
+</html>

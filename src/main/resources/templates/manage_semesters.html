@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Semesters</title>
+</head>
+<body>
+<div class = semesters_container>
+    <div class = semesters th:each="semester: ${semesters}">
+        <a th:href="@{../semester/{id}/calendar(id=${semester.id})}" th:text="${semester.name}" th:id="${semester.id}"><br></a>
+    </div>
+</div>
+<div>
+    <a href="./create_semester">Set up a new semester</a></div>
+</div>
+</body>
+</html>

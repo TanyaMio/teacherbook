@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Courses</title>
+</head>
+<body>
+<div class = courses_container>
+    <input id="courseInput" type="text" name="course_search" placeholder="Search courses">
+    <div class = courses th:each="course: ${courses}">
+        <p th:text="${course.name}" th:id="${course.id}"></p>
+        <p th:text="@{credits: {c}(c=${course.credits})}"></p>
+        <button onclick="edit(this)">Edit</button>
+    </div>
+    <div>
+        Add a new course:
+        <form method="post">
+            <label for="new_name">Name:</label>
+            <input type="text" name="name" placeholder="Name" id="new_name" required/>
+            <label for="new_name">Credits:</label>
+            <input type="number" name="credits" placeholder="Credits" id="new_credits" value="0"/>
+            <input type="text" name="oldname" hidden/>
+            <button type="f">Add Course</button>
+        </form>
+    </div>
+    <script th:inline="javascript">
+
+        function edit(e) {
+            e.setAttribute("hidden", "true");
+            var form = document.createElement("FORM");
+            form.setAttribute("method", "post");
+            var n = document.createElement("INPUT")
+            n.setAttribute("type", "text");
+            n.setAttribute("name", "name");
+            n.setAttribute("value", e.parentNode.firstElementChild.innerHTML);
+            n.setAttribute("placeholder", "New Name");
+            var c = document.createElement("INPUT");
+            c.setAttribute("type", "number");
+            c.setAttribute("name", "credits");
+            c.setAttribute("placeholder", "Credits");
+            c.setAttribute("value", "0");
+            var old = document.createElement("INPUT");
+            old.setAttribute("type", "text");
+            old.setAttribute("name", "oldname");
+            old.setAttribute("value", e.parentNode.firstElementChild.innerHTML);
+            old.setAttribute("hidden", "true");
+            var btn = document.createElement("BUTTON");
+            btn.setAttribute("type", "f");
+            btn.innerText = "Save";
+            form.append(n);
+            form.append(c);
+            form.append(old);
+            form.append(btn);
+            e.parentNode.append(form);
+        }
+
+        function filter(inp) {
+            inp.addEventListener("input", function (e) {
+                var val = this.value;
+                var list = document.getElementsByClassName("courses");
+                if (!val) {
+                    for (var i=0; i<list.length; i++) {
+                        list.item(i).firstElementChild.removeAttribute("hidden");
+                    }
+                }
+                for (var i=0; i<list.length; i++) {
+                    if (list.item(i).firstElementChild.innerHTML.substr(0, val.length).toUpperCase() != val.toUpperCase()) {
+                        list.item(i).firstElementChild.setAttribute("hidden", "true");
+                    } else {
+                        list.item(i).firstElementChild.removeAttribute("hidden");
+                    }
+                }
+            })
+        }
+
+        filter(document.getElementById("courseInput"));
+    </script>
+</div>
+</body>
+</html>

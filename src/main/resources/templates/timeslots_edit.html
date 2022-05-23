@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Timeslots</title>
+</head>
+<body>
+<form method="post">
+    <div th:each="timeslot: ${timeslots}">
+        <label th:text="${timeslot.name}"></label>
+        <input type="text" placeholder="New name" name="timeslotname" th:id="${timeslot.id}" th:content="${timeslot.name}" />
+        <input type="time" th:value="${timeslot.start_time}" name="time_start"/>
+        -
+        <input type="time" th:value="${timeslot.end_time}" name="time_end"/>
+    </div>
+    <button id="submit_btn" type="f">Save</button>
+</form>
+</body>
+</html>
