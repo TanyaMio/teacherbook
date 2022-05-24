@@ -125,4 +125,9 @@ public class Semester {
     public Collection<Timeslot> getTimeslots() {
         return timeslots;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof Semester && ((Semester) o).getId().equals(this.id);
+    }
 }

@@ -17,8 +17,8 @@ import java.util.Locale;
 @Component
 public class TeacherbookAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
-    //@Autowired
-    //private MessageSource messages;
+    @Autowired
+    private MessageSource messages;
 
     @Autowired
     private LocaleResolver localeResolver;

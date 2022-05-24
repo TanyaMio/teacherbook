@@ -1,10 +1,178 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Pick a Schedule</title>
+    <title>Schedule Edit</title>
 </head>
 <body>
+    <h2 id="h_teacher" th:if="${#strings.equals(for_str, 'teacher')}" th:text="@{Schedule for {h} {name} {surname}(h=${schedule_for.honorific},name=${schedule_for.first_name}, surname=${schedule_for.last_name})}"></h2>
+    <h2 id="h_group" th:if="${#strings.equals(for_str, 'group')}" th:text="@{Schedule for {name}(name=${schedule_for.name})}"></h2>
+    <div id="schedule_form" style="height: 100vh; width: 100%; background-color: rgba(0, 0, 150, 0.5); display: none;">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeForm()" style="margin-left: auto; margin-right: 10px;">&times;</a>
+        <div style="width: fit-content; margin: auto">
+            <strong id="rd_name"></strong>
+            <strong id="ts_name"></strong>
+        </div>
+        <form method="post" style="width: fit-content; margin: auto">
+            <input hidden type="number" name="rd_id" id="rd_id" required/>
+            <input hidden type="number" name="ts_id" id="ts_id" required/>
+            <div>
+                <label for="courseSearch">Course: </label>
+                <input type="text" name="course" id="courseSearch" required/>
+            </div>
+            <div>
+                <label for="teacherSearch">Teacher: </label>
+                <input type="text" name="teacher" id="teacherSearch" required/>
+            </div>
+            <div>
+                <label for="groupSearch">Group: </label>
+                <input type="text" name="group" id="groupSearch" required/>
+            </div>
+            <button type="f" onclick="activate_inp()">Save</button>
+        </form>
+    </div>
+    <div id="calendar">
+        <table id="schedule_table" style="border-collapse: collapse;">
+            <tr th:each="row: ${calendar}">
+                <td th:each="el: ${row}">
+                    <div th:if="${el?.class?.name == 'teacherbook.model.schedulegrid.Timeslot'}" th:id="@{Timeslot-{id}(id=${el.id})}">
+                        <p th:text="${#strings.replace(el.name,'%20',' ')}"></p>
+                        <p th:text="@{{st}-{end}(st=${el.start_time},end=${el.end_time})}"></p>
+                    </div>
+                    <div th:if="${el?.class?.name == 'teacherbook.model.schedulegrid.RotationDay'}">
+                        <input hidden type="number" th:value="@{{name}-{id}(name=${el.name}, id=${el.id})}" name="rotation_day"/>
+                        <div style="height: 30px;" onmouseenter="this.firstElementChild.removeAttribute('hidden')" onmouseleave="this.firstElementChild.setAttribute('hidden','true')">
+                            <button hidden onclick="openForm(this.parentNode)" type="button">+</button>
+                        </div>
+                    </div>
+                    <div th:if="${el?.class?.name == 'teacherbook.model.schedulegrid.ScheduleEntry'}">
+                        <p th:text="${#strings.replace(el.course.name,'%20',' ')}"></p>
+                        <p th:if="${#strings.equals(for_str, 'teacher')}" th:text="${#strings.replace(el.group.name,'%20',' ')}"></p>
+                        <p th:if="${#strings.equals(for_str, 'group')}" th:text="${#strings.replace(el.teacher.fullname,'%20',' ')}"></p>
+                    </div>
+                    <p style="white-space: pre-line" th:unless="${el?.class?.name == 'teacherbook.model.schedulegrid.Timeslot' OR el?.class?.name == 'teacherbook.model.schedulegrid.RotationDay' OR el?.class?.name == 'teacherbook.model.schedulegrid.ScheduleEntry'}" th:text="${el}"></p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <script th:inline="javascript">
 
+        function activate_inp() {
+            var schedule_for_str = [[${for_str}]];
+            if (schedule_for_str === "group") {
+                document.getElementById("groupSearch").disabled = false;
+            } else {
+                document.getElementById("teacherSearch").disabled = false;
+            }
+        }
+
+        function openForm(e) {
+            document.getElementById("schedule_form").style.display='block';
+            var val = e.parentNode.firstElementChild.getAttribute("value");
+            document.getElementById("rd_name").innerText = val.substr(0, val.lastIndexOf("-"));
+            document.getElementById("rd_id").setAttribute("value", val.substr(val.lastIndexOf("-")+1));
+            //parent - cell div, parent.parent - cell, parent.parent.parent - row
+            var ts_td = e.parentNode.parentNode.parentNode.firstElementChild;
+            //child - cell div, child.child - <p> with name
+            val = ts_td.firstElementChild.firstElementChild;
+            document.getElementById("ts_name").innerText = val.innerText;
+            val = val.parentNode.getAttribute("id");
+            document.getElementById("ts_id").setAttribute("value", val.substr(val.lastIndexOf("-")+1));
+            document.getElementById("calendar").style.display='none';
+            var coursesnames = [[${coursesnames}]];
+            autocomplete(document.getElementById("courseSearch"), coursesnames);
+            var schedule_for_str = [[${for_str}]];
+            if (schedule_for_str === "group") {
+                document.getElementById("groupSearch").disabled = true;
+                var schedule_for = document.getElementById("h_group").innerText;
+                document.getElementById("groupSearch").setAttribute("value", schedule_for.substr(schedule_for.lastIndexOf(" for ") + 5));
+                var teachernames = [[${teachernames}]];
+                document.getElementById("teacherSearch").disabled = false;
+                autocomplete(document.getElementById("teacherSearch"), teachernames);
+            } else {
+                document.getElementById("teacherSearch").disabled = true;
+                var schedule_for = document.getElementById("h_teacher").innerText;
+                document.getElementById("teacherSearch").setAttribute("value", schedule_for.substr(schedule_for.lastIndexOf(" for ") + 5));
+                var groupnames = [[${groupnames}]];
+                document.getElementById("groupSearch").disabled = false;
+                autocomplete(document.getElementById("groupSearch"), groupnames);
+            }
+        }
+
+        function closeForm() {
+            document.getElementById("schedule_form").style.display='none';
+            document.getElementById("calendar").style.display='block';
+        }
+
+        function autocomplete(inp, arr_names) {
+            var currentFocus;
+            inp.addEventListener("input", function(e) {
+                var a, b, i, val = this.value;
+                closeAllLists();
+                if (!val) { return false;}
+                currentFocus = -1;
+                a = document.createElement("DIV");
+                a.setAttribute("id", this.id + "autocomplete-list");
+                a.setAttribute("class", "autocomplete-items");
+                this.parentNode.appendChild(a);
+                for (i = 0; i < arr_names.length; i++) {
+                    if (arr_names[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                        b = document.createElement("DIV");
+                        b.innerHTML = "<strong>" + arr_names[i].substr(0, val.length) + "</strong>";
+                        b.innerHTML += arr_names[i].substr(val.length);
+                        b.innerHTML += "<input type='hidden' name='group_name' value='" + arr_names[i] + "'/>";
+                        b.addEventListener("click", function(e) {
+                            this.innerHTML = this.innerHTML.replace("<strong>", "");
+                            this.innerHTML = this.innerHTML.replace("</strong>", "");
+                            inp.value = this.getElementsByTagName("input")[0].value;
+                            closeAllLists();
+                        });
+                        a.appendChild(b);
+                    }
+                }
+            });
+
+            inp.addEventListener("keydown", function(e) {
+                var x = document.getElementById(this.id + "autocomplete-list");
+                if (x) x = x.getElementsByTagName("div");
+                if (e.keyCode == 40) {
+                    currentFocus++;
+                    addActive(x);
+                } else if (e.keyCode == 38) {
+                    currentFocus--;
+                    addActive(x);
+                } else if (e.keyCode == 13) {
+                    e.preventDefault();
+                    if (currentFocus > -1) {
+                        if (x) x[currentFocus].click();
+                    }
+                }
+            });
+            function addActive(x) {
+                if (!x) return false;
+                removeActive(x);
+                if (currentFocus >= x.length) currentFocus = 0;
+                if (currentFocus < 0) currentFocus = (x.length - 1);
+                x[currentFocus].classList.add("autocomplete-active");
+            }
+            function removeActive(x) {
+                for (var i = 0; i < x.length; i++) {
+                    x[i].classList.remove("autocomplete-active");
+                }
+            }
+            function closeAllLists(elmnt) {
+                var x = document.getElementsByClassName("autocomplete-items");
+                for (var i = 0; i < x.length; i++) {
+                    if (elmnt != x[i] && elmnt != inp) {
+                        x[i].parentNode.removeChild(x[i]);
+                    }
+                }
+            }
+            document.addEventListener("click", function (e) {
+                closeAllLists(e.target);
+            });
+        }
+
+    </script>
 </body>
 </html>

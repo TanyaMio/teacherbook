@@ -415,6 +415,7 @@ public class AdminPagesController {
                     String date_str = date.getMonth().getDisplayName(TextStyle.SHORT, request.getLocale()) + " "
                             + date.getDayOfMonth();
                     if (calendar.get(d).getRotation_day() != null) {
+                        workdays_fetched++;
                         date_str += "\n" + calendar.get(d).getRotation_day().getName();
                         calendar_table.get(row_ind).set(col_ind, date_str);
                         ArrayList<ScheduleEntry> schedule;
@@ -426,6 +427,16 @@ public class AdminPagesController {
                                     teacherRepo.findById(for_id).get(), calendar.get(d).getRotation_day()));
                         }
                         schedule.sort(ScheduleEntry::compareTo);
+                        int schedule_i = 0;
+                        for (int i=1; i<=timeslots.size(); i++) {
+                            if (schedule_i < schedule.size() &&
+                                    schedule.get(schedule_i).getTimeslot().equals(timeslots.get(i-1))) {
+                                calendar_table.get(row_ind+i).set(col_ind, schedule.get(schedule_i));
+                                schedule_i++;
+                            } else {
+                                calendar_table.get(row_ind+i).set(col_ind, calendar.get(d).getRotation_day());
+                            }
+                        }
                         for (ScheduleEntry se: schedule) {
                             int inc = timeslots.indexOf(se.getTimeslot()) + 1;
                             calendar_table.get(row_ind+inc).set(col_ind, se);
@@ -436,13 +447,52 @@ public class AdminPagesController {
                             calendar_table.get(row_ind + i).set(col_ind, "");
                         }
                     }
-                    //end-of-week actions
+                    if (col_ind==7) {
+                        for(int i=1; i<8; i++) {
+                            if (calendar_table.get(row_ind).get(i) == null) {
+                                calendar_table.get(row_ind).set(i, "");
+                                for (int j=1; j<=timeslots.size(); j++) {
+                                    calendar_table.get(row_ind+j).set(i, "");
+                                }
+                            }
+                        }
+                        if (workdays_fetched < rotation_len) {
+                            row_ind = row_ind + timeslots.size() + 1;
+                            calendar_table.add(new ArrayList<Object>(Arrays.asList(new Object[8])));
+                            calendar_table.get(1).set(0, "");
+                            for (int i=1; i <= timeslots.size(); i++) {
+                                calendar_table.add(new ArrayList<>(Arrays.asList(new Object[8])));
+                                calendar_table.get(row_ind+i).set(0, timeslots.get(i-1));
+                            }
+                        }
+                    }
                 }
-                model.addAttribute("calendars", calendar_table);
-                ArrayList<RotationDay> rotation = new ArrayList<>(semester.getRotation());
-                rotation.sort(RotationDay::compareTo);
-                model.addAttribute("rotation", rotation);
-                return "rotation_rename";
+                model.addAttribute("calendar", calendar_table);
+                model.addAttribute("for_str", for_a);
+                if (for_a.equals("group")) {
+                    model.addAttribute("schedule_for", groupRepo.findById(for_id).get());
+                    ArrayList<Teacher> teachers = new ArrayList<>(school.getTeachers());
+                    ArrayList<String> teachernames = new ArrayList<>();
+                    for (Teacher t: teachers) {
+                        teachernames.add(t.getFullname());
+                    }
+                    model.addAttribute("teachernames", teachernames);
+                } else {
+                    model.addAttribute("schedule_for", teacherRepo.findById(for_id).get());
+                    ArrayList<StudentGroup> groups = new ArrayList<>(school.getGroups());
+                    ArrayList<String> groupnames = new ArrayList<>();
+                    for (StudentGroup g: groups) {
+                        groupnames.add(g.getName());
+                    }
+                    model.addAttribute("groupnames", groupnames);
+                }
+                ArrayList<Course> courses = new ArrayList<>(school.getCourses());
+                ArrayList<String> coursesnames = new ArrayList<>();
+                for (Course c: courses) {
+                    coursesnames.add(c.getName());
+                }
+                model.addAttribute("coursesnames", coursesnames);
+                return "schedule_edit";
             } else {
                 return "err";
             }
@@ -760,6 +810,12 @@ public class AdminPagesController {
         String checkAuthResult = checkAuth(uid, request);
         if (!name.isBlank() && checkAuthResult.equals("**success**")) {
             School school = userRepo.findById(uid).get().getSchool();
+            if (groupRepo.findByNameAndSchool(name, school) != null) {
+                String url = "http://localhost:8088/err";
+                redirectView.setUrl(url);
+                redirectView.setHosts();
+                return redirectView;
+            }
             StudentGroup group = new StudentGroup(name);
             group.setSchool(school);
             group = groupRepo.save(group);
@@ -895,6 +951,78 @@ public class AdminPagesController {
                                 "/schedule_for/teacher/" + teacher.getTeacher_id() + "/edit");
                     }
                 }
+            } else {
+                redirectView.setUrl("http://localhost:8088/err");
+            }
+        } else {
+            String url = "http://localhost:8088/" + checkAuthResult;
+            redirectView.setUrl(url);
+        }
+        redirectView.setHosts();
+        return redirectView;
+    }
+
+    @PostMapping("logged-in/{uid}/semester/{sid}/schedule_for/{for_a}/{for_id}/edit")
+    @ResponseBody
+    public RedirectView add_edit_schedule(@PathVariable Long uid, @PathVariable Long sid,
+                                          @PathVariable String for_a, @PathVariable Long for_id,
+                                          @RequestParam long rd_id, @RequestParam long ts_id,
+                                          @RequestParam String course,
+                                          @RequestParam String teacher,
+                                          @RequestParam String group,
+                                          HttpServletRequest request) {
+        RedirectView redirectView = new RedirectView();
+        if (!(for_a.equals("group") || for_a.equals("teacher"))) {
+            redirectView.setUrl("http://localhost:8088/err");
+            redirectView.setHosts();
+            return redirectView;
+        } else if (for_a.equals("group") && !groupRepo.findById(for_id).isPresent()) {
+            redirectView.setUrl("http://localhost:8088/err");
+            redirectView.setHosts();
+            return redirectView;
+        } else if (for_a.equals("teacher") && !teacherRepo.findById(for_id).isPresent()) {
+            redirectView.setUrl("http://localhost:8088/err");
+            redirectView.setHosts();
+            return redirectView;
+        }
+        String checkAuthResult = checkAuth(uid, request);
+        if (checkAuthResult.equals("**success**")) {
+            School school = userRepo.findById(uid).get().getSchool();
+            Optional<Semester> semester = semesterRepo.findById(sid);
+            if ((for_a.equals("group") && !groupRepo.findById(for_id).get().getSchool().equals(school)) ||
+                    (for_a.equals("teacher") && !teacherRepo.findById(for_id).get().getSchool().equals(school))) {
+                redirectView.setUrl("http://localhost:8088/err");
+                redirectView.setHosts();
+                return redirectView;
+            }
+            if (semester.isPresent() && semester.get().getSchool().equals(school)) {
+                Semester semesterFound = semester.get();
+                if (!rotationRepo.findById(rd_id).isPresent() ||
+                        !rotationRepo.findById(rd_id).get().getSemester().equals(semesterFound) ||
+                        !timeslotRepo.findById(ts_id).isPresent() ||
+                        !timeslotRepo.findById(ts_id).get().getSemester().equals(semesterFound) ||
+                        course.isBlank() || teacher.isBlank() || group.isBlank() ||
+                        courseRepo.findByNameAndSchool(course.strip(), school) == null ||
+                        teacherRepo.findByFullnameAndSchool(teacher.strip(), school) == null ||
+                        groupRepo.findByNameAndSchool(group.strip(), school) == null) {
+                    redirectView.setUrl("http://localhost:8088/err");
+                } else {
+                    ScheduleEntry newEntry = new ScheduleEntry();
+                    newEntry.setSemester(semesterFound);
+                    newEntry.setRotationDay(rotationRepo.findById(rd_id).get());
+                    newEntry.setTimeslot(timeslotRepo.findById(ts_id).get());
+                    newEntry.setCourse(courseRepo.findByNameAndSchool(course.strip(), school));
+                    if (for_a.equals("group")) {
+                        newEntry.setTeacher(teacherRepo.findByFullnameAndSchool(teacher.strip(), school));
+                        newEntry.setGroup(groupRepo.findById(for_id).get());
+                    } else {
+                        newEntry.setTeacher(teacherRepo.findById(for_id).get());
+                        newEntry.setGroup(groupRepo.findByNameAndSchool(group.strip(), school));
+                    }
+                    scheduleRepo.save(newEntry);
+                    redirectView.setUrl("http://localhost:8088/logged-in/" + uid + "/semester/" + sid + "/schedule_for/" + for_a + "/" + for_id + "/edit");
+                }
+
             } else {
                 redirectView.setUrl("http://localhost:8088/err");
             }
