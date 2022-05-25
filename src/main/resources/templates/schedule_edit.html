@@ -13,7 +13,8 @@
             <strong id="rd_name"></strong>
             <strong id="ts_name"></strong>
         </div>
-        <form method="post" style="width: fit-content; margin: auto">
+        <form method="post" style="width: fit-content; margin: auto" autocomplete="off">
+            <input hidden type="text" name="se_id" id="se_id"/>
             <input hidden type="number" name="rd_id" id="rd_id" required/>
             <input hidden type="number" name="ts_id" id="ts_id" required/>
             <div>
@@ -42,13 +43,17 @@
                     <div th:if="${el?.class?.name == 'teacherbook.model.schedulegrid.RotationDay'}">
                         <input hidden type="number" th:value="@{{name}-{id}(name=${el.name}, id=${el.id})}" name="rotation_day"/>
                         <div style="height: 30px;" onmouseenter="this.firstElementChild.removeAttribute('hidden')" onmouseleave="this.firstElementChild.setAttribute('hidden','true')">
-                            <button hidden onclick="openForm(this.parentNode)" type="button">+</button>
+                            <button hidden onclick="openForm(this.parentNode, true)" type="button">+</button>
                         </div>
                     </div>
-                    <div th:if="${el?.class?.name == 'teacherbook.model.schedulegrid.ScheduleEntry'}">
+                    <div th:if="${el?.class?.name == 'teacherbook.model.schedulegrid.ScheduleEntry'}" th:id="@{SE-{id}(id=${el.id})}">
+                        <input hidden type="number" th:value="@{{name}-{id}(name=${el.rotationDay.name}, id=${el.rotationDay.id})}" name="rotation_day"/>
                         <p th:text="${#strings.replace(el.course.name,'%20',' ')}"></p>
-                        <p th:if="${#strings.equals(for_str, 'teacher')}" th:text="${#strings.replace(el.group.name,'%20',' ')}"></p>
+                        <p th:if="${#strings.equals(for_str, 'teacher')}" th:text="${#strings.replace(el.group.name,'%20',' ')}" ></p>
                         <p th:if="${#strings.equals(for_str, 'group')}" th:text="${#strings.replace(el.teacher.fullname,'%20',' ')}"></p>
+                        <div style="height: 30px;" onmouseenter="this.firstElementChild.removeAttribute('hidden')" onmouseleave="this.firstElementChild.setAttribute('hidden','true')">
+                            <button hidden onclick="openForm(this.parentNode, false)" type="button">Edit</button>
+                        </div>
                     </div>
                     <p style="white-space: pre-line" th:unless="${el?.class?.name == 'teacherbook.model.schedulegrid.Timeslot' OR el?.class?.name == 'teacherbook.model.schedulegrid.RotationDay' OR el?.class?.name == 'teacherbook.model.schedulegrid.ScheduleEntry'}" th:text="${el}"></p>
                 </td>
@@ -66,7 +71,7 @@
             }
         }
 
-        function openForm(e) {
+        function openForm(e, newEntry) {
             document.getElementById("schedule_form").style.display='block';
             var val = e.parentNode.firstElementChild.getAttribute("value");
             document.getElementById("rd_name").innerText = val.substr(0, val.lastIndexOf("-"));
@@ -79,9 +84,19 @@
             val = val.parentNode.getAttribute("id");
             document.getElementById("ts_id").setAttribute("value", val.substr(val.lastIndexOf("-")+1));
             document.getElementById("calendar").style.display='none';
+            var schedule_for_str = [[${for_str}]];
+            if (newEntry !== true) {
+                val = e.parentNode.getAttribute("id");
+                document.getElementById("se_id").setAttribute("value", val.substr(val.lastIndexOf("-")+1));
+                document.getElementById("courseSearch").setAttribute("value", e.parentNode.children.item(1).innerText);
+                if (schedule_for_str === "group") {
+                    document.getElementById("teacherSearch").setAttribute("value", e.parentNode.children.item(2).innerText);
+                } else {
+                    document.getElementById("groupSearch").setAttribute("value", e.parentNode.children.item(2).innerText);
+                }
+            }
             var coursesnames = [[${coursesnames}]];
             autocomplete(document.getElementById("courseSearch"), coursesnames);
-            var schedule_for_str = [[${for_str}]];
             if (schedule_for_str === "group") {
                 document.getElementById("groupSearch").disabled = true;
                 var schedule_for = document.getElementById("h_group").innerText;
@@ -101,6 +116,14 @@
 
         function closeForm() {
             document.getElementById("schedule_form").style.display='none';
+            document.getElementById("rd_name").innerText = "";
+            document.getElementById("rd_id").setAttribute("value", "");
+            document.getElementById("ts_name").innerText = "";
+            document.getElementById("ts_id").setAttribute("value", "");
+            document.getElementById("se_id").setAttribute("value", "");
+            document.getElementById("courseSearch").setAttribute("value", "");
+            document.getElementById("teacherSearch").setAttribute("value", "");
+            document.getElementById("groupSearch").setAttribute("value", "");
             document.getElementById("calendar").style.display='block';
         }
 

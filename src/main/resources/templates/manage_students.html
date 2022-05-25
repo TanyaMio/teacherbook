@@ -7,7 +7,7 @@
 <body>
 <div class = students_container>
     <div class = students th:each="student: ${students}">
-        <a th:href="@{./student/{id}(id=${student.student_id})}" th:text="${student.fullname}" th:id="${student.student_id}"><br></a>
+        <a th:href="@{./student/{id}/student_info(id=${student.student_id})}" th:text="${student.fullname}" th:id="${student.student_id}"><br></a>
     </div>
 </div>
 <div>

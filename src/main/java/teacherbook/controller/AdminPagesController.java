@@ -1,6 +1,7 @@
 package teacherbook.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Controller;
@@ -84,6 +85,32 @@ public class AdminPagesController {
         }
     }
 
+    @GetMapping("/logged-in/{uid}/members/teacher/{tid}/delete")
+    public RedirectView delete_teacher(@PathVariable Long uid, @PathVariable Long tid,
+                                     HttpServletRequest request) {
+        RedirectView redirectView = new RedirectView();
+        String checkAuthResult = checkAuth(uid, request);
+        if (checkAuthResult.equals("**success**")) {
+            School school = userRepo.findById(uid).get().getSchool();
+            Optional<Teacher> teacher = teacherRepo.findById(tid);
+            if (teacher.isPresent() && teacher.get().getSchool().equals(school)) {
+                Teacher teacherFound = teacher.get();
+                ArrayList<ScheduleEntry> schedule = new ArrayList<>(scheduleRepo.findAllByTeacher(teacherFound));
+                scheduleRepo.deleteAll(schedule);
+                userRepo.delete(teacherFound.getTBuser());
+                teacherRepo.delete(teacherFound);
+                redirectView.setUrl("http://localhost:8088/logged-in/"+ uid +"/members/teachers");
+            } else {
+                redirectView.setUrl("http://localhost:8088/err");
+            }
+        } else {
+            String url = "http://localhost:8088/" + checkAuthResult;
+            redirectView.setUrl(url);
+        }
+        redirectView.setHosts();
+        return redirectView;
+    }
+
     @GetMapping("logged-in/{uid}/members/students")
     public String students(@PathVariable Long uid, Model model, HttpServletRequest request) {
         String checkAuthResult = checkAuth(uid, request);
@@ -94,6 +121,74 @@ public class AdminPagesController {
         } else {
             return checkAuthResult;
         }
+    }
+
+    @GetMapping("logged-in/{uid}/members/student/{sid}/student_info")
+    public String student_info(@PathVariable Long uid, @PathVariable Long sid,
+                               Model model, HttpServletRequest request) {
+        String checkAuthResult = checkAuth(uid, request);
+        if (checkAuthResult.equals("**success**")) {
+            TeacherbookUser userFound = userRepo.findById(uid).get();
+            Optional<Student> student = studentRepo.findById(sid);
+            if (student.isPresent() && student.get().getSchool().equals(userFound.getSchool())) {
+                model.addAttribute("student", student.get());
+                return "student_info";
+            } else {
+                return "err";
+            }
+        } else {
+            return checkAuthResult;
+        }
+    }
+
+    @GetMapping("logged-in/{uid}/members/student/{sid}/remove_from/{gid}")
+    public RedirectView student_remove_from(@PathVariable Long uid,
+                                            @PathVariable Long sid, @PathVariable Long gid,
+                                            HttpServletRequest request) {
+        RedirectView redirectView = new RedirectView();
+        String checkAuthResult = checkAuth(uid, request);
+        if (checkAuthResult.equals("**success**")) {
+            School school = userRepo.findById(uid).get().getSchool();
+            Optional<StudentGroup> group = groupRepo.findById(gid);
+            Optional<Student> student = studentRepo.findById(sid);
+            if (group.isPresent() && group.get().getSchool().equals(school) &&
+                    student.isPresent() && student.get().getSchool().equals(school)) {
+                Student studentFound = student.get();
+                studentFound.removeGroup(group.get());
+                studentRepo.save(studentFound);
+                redirectView.setUrl("http://localhost:8088/logged-in/" + uid + "/members/student/" + sid + "/student_info");
+            } else {
+                redirectView.setUrl("http://localhost:8088/err");
+            }
+        } else {
+            redirectView.setUrl("http://localhost:8088/err");
+        }
+        redirectView.setHosts();
+        return redirectView;
+    }
+
+    @GetMapping("logged-in/{uid}/members/student/{sid}/delete")
+    public RedirectView student_delete(@PathVariable Long uid, @PathVariable Long sid,
+                                       HttpServletRequest request) {
+        RedirectView redirectView = new RedirectView();
+        String checkAuthResult = checkAuth(uid, request);
+        if (checkAuthResult.equals("**success**")) {
+            School school = userRepo.findById(uid).get().getSchool();
+            Optional<Student> st = studentRepo.findById(sid);
+            if (st.isPresent() && st.get().getSchool().equals(school)) {
+                Student student = st.get();
+                userRepo.delete(student.getUser());
+                studentRepo.delete(student);
+                redirectView.setUrl("http://localhost:8088/logged-in/"+ uid +"/members/students");
+            } else {
+                redirectView.setUrl("http://localhost:8088/err");
+            }
+        } else {
+            String url = "http://localhost:8088/" + checkAuthResult;
+            redirectView.setUrl(url);
+        }
+        redirectView.setHosts();
+        return redirectView;
     }
 
     @GetMapping("logged-in/{uid}/semesters/list")
@@ -369,6 +464,36 @@ public class AdminPagesController {
         return redirectView;
     }
 
+    @GetMapping("/logged-in/{uid}/group/{gid}/delete")
+    public RedirectView delete_group(@PathVariable Long uid, @PathVariable Long gid,
+                                     HttpServletRequest request) {
+        RedirectView redirectView = new RedirectView();
+        String checkAuthResult = checkAuth(uid, request);
+        if (checkAuthResult.equals("**success**")) {
+            School school = userRepo.findById(uid).get().getSchool();
+            Optional<StudentGroup> group = groupRepo.findById(gid);
+            if (group.isPresent() && group.get().getSchool().equals(school)) {
+                StudentGroup groupFound = group.get();
+                ArrayList<ScheduleEntry> schedule = new ArrayList<>(scheduleRepo.findAllByGroup(groupFound));
+                scheduleRepo.deleteAll(schedule);
+                ArrayList<Student> students = new ArrayList<>(groupFound.getStudents());
+                for (Student s: students) {
+                    s.removeGroup(groupFound);
+                    studentRepo.save(s);
+                }
+                groupRepo.delete(groupFound);
+                redirectView.setUrl("http://localhost:8088/logged-in/"+ uid +"/groups/list");
+            } else {
+                redirectView.setUrl("http://localhost:8088/err");
+            }
+        } else {
+            String url = "http://localhost:8088/" + checkAuthResult;
+            redirectView.setUrl(url);
+        }
+        redirectView.setHosts();
+        return redirectView;
+    }
+
     @GetMapping("logged-in/{uid}/semester/{sid}/schedule_for/{for_a}/{for_id}/edit")
     public String schedule_edit(@PathVariable Long uid, @PathVariable Long sid,
                                 @PathVariable String for_a, @PathVariable Long for_id,
@@ -583,6 +708,33 @@ public class AdminPagesController {
                 }
             } else {
                 redirectView.setUrl("http://localhost:8088/logged-in/" + uid + "/members/students?error");
+            }
+        } else {
+            String url = "http://localhost:8088/" + checkAuthResult;
+            redirectView.setUrl(url);
+        }
+        redirectView.setHosts();
+        return redirectView;
+    }
+
+    @PostMapping("logged-in/{uid}/members/student/{sid}/edit_info")
+    @ResponseBody
+    public RedirectView student_edit(@PathVariable Long uid, @PathVariable Long sid,
+                                     @RequestParam String firstname, @RequestParam String lastname,
+                                     HttpServletRequest request) {
+        RedirectView redirectView = new RedirectView();
+        String checkAuthResult = checkAuth(uid, request);
+        if (checkAuthResult.equals("**success**")) {
+            School school = userRepo.findById(uid).get().getSchool();
+            Optional<Student> st = studentRepo.findById(sid);
+            if (st.isPresent() && st.get().getSchool().equals(school)) {
+                Student student = st.get();
+                student.setFirst_name(firstname);
+                student.setLast_name(lastname);
+                studentRepo.save(student);
+                redirectView.setUrl("http://localhost:8088/logged-in/"+ uid +"/members/student/" + sid + "/student_info");
+            } else {
+                redirectView.setUrl("http://localhost:8088/err");
             }
         } else {
             String url = "http://localhost:8088/" + checkAuthResult;
@@ -878,9 +1030,35 @@ public class AdminPagesController {
         return redirectView;
     }
 
+    @PostMapping("/logged-in/{uid}/group/{gid}/rename")
+    @ResponseBody
+    public RedirectView rename_group(@PathVariable Long uid, @PathVariable Long gid,
+                                     @RequestParam String newname,
+                                     HttpServletRequest request) {
+        RedirectView redirectView = new RedirectView();
+        String checkAuthResult = checkAuth(uid, request);
+        if (checkAuthResult.equals("**success**")) {
+            School school = userRepo.findById(uid).get().getSchool();
+            Optional<StudentGroup> group = groupRepo.findById(gid);
+            if (group.isPresent() && group.get().getSchool().equals(school)) {
+                StudentGroup groupFound = group.get();
+                groupFound.setName(newname);
+                groupRepo.save(groupFound);
+                redirectView.setUrl("http://localhost:8088/logged-in/"+ uid +"/group/" + gid + "/group_view");
+            } else {
+                redirectView.setUrl("http://localhost:8088/err");
+            }
+        } else {
+            String url = "http://localhost:8088/" + checkAuthResult;
+            redirectView.setUrl(url);
+        }
+        redirectView.setHosts();
+        return redirectView;
+    }
+
     @PostMapping("logged-in/{uid}/courses/list")
     @ResponseBody
-    public RedirectView add_edit_group(@PathVariable Long uid,
+    public RedirectView add_edit_course(@PathVariable Long uid,
                                        @RequestParam String name,
                                        @RequestParam String oldname,
                                        @RequestParam int credits,
@@ -967,6 +1145,7 @@ public class AdminPagesController {
     public RedirectView add_edit_schedule(@PathVariable Long uid, @PathVariable Long sid,
                                           @PathVariable String for_a, @PathVariable Long for_id,
                                           @RequestParam long rd_id, @RequestParam long ts_id,
+                                          @RequestParam String se_id,
                                           @RequestParam String course,
                                           @RequestParam String teacher,
                                           @RequestParam String group,
@@ -1006,23 +1185,83 @@ public class AdminPagesController {
                         teacherRepo.findByFullnameAndSchool(teacher.strip(), school) == null ||
                         groupRepo.findByNameAndSchool(group.strip(), school) == null) {
                     redirectView.setUrl("http://localhost:8088/err");
-                } else {
+                } else if (se_id.isBlank()){
+                    RotationDay rd = rotationRepo.findById(rd_id).get();
+                    Timeslot ts = timeslotRepo.findById(ts_id).get();
+                    Teacher dbTeacher = teacherRepo.findByFullnameAndSchool(teacher.strip(), school);
+                    if (scheduleRepo.findBySemesterAndTeacherAndRotationDayAndTimeslot(semesterFound, dbTeacher, rd, ts) != null) {
+                        redirectView.setUrl("http://localhost:8088/err");
+                        redirectView.setHosts();
+                        return redirectView;
+                    }
+                    StudentGroup dbGroup = groupRepo.findByNameAndSchool(group.strip(), school);
+                    for (Student s: dbGroup.getStudents()) {
+                        if (s.getGroups().size() > 1) {
+                            ArrayList<StudentGroup> groups = new ArrayList<>(s.getGroups());
+                            groups.remove(dbGroup);
+                            for (StudentGroup g: groups) {
+                                if (scheduleRepo.findBySemesterAndGroupAndRotationDayAndTimeslot(semesterFound, g, rd, ts) != null) {
+                                    redirectView.setUrl("http://localhost:8088/err");
+                                    redirectView.setHosts();
+                                    return redirectView;
+                                }
+                            }
+                        }
+                    }
                     ScheduleEntry newEntry = new ScheduleEntry();
                     newEntry.setSemester(semesterFound);
-                    newEntry.setRotationDay(rotationRepo.findById(rd_id).get());
-                    newEntry.setTimeslot(timeslotRepo.findById(ts_id).get());
+                    newEntry.setRotationDay(rd);
+                    newEntry.setTimeslot(ts);
                     newEntry.setCourse(courseRepo.findByNameAndSchool(course.strip(), school));
-                    if (for_a.equals("group")) {
-                        newEntry.setTeacher(teacherRepo.findByFullnameAndSchool(teacher.strip(), school));
-                        newEntry.setGroup(groupRepo.findById(for_id).get());
-                    } else {
-                        newEntry.setTeacher(teacherRepo.findById(for_id).get());
-                        newEntry.setGroup(groupRepo.findByNameAndSchool(group.strip(), school));
-                    }
+                    newEntry.setTeacher(dbTeacher);
+                    newEntry.setGroup(dbGroup);
                     scheduleRepo.save(newEntry);
                     redirectView.setUrl("http://localhost:8088/logged-in/" + uid + "/semester/" + sid + "/schedule_for/" + for_a + "/" + for_id + "/edit");
-                }
+                } else {
+                    try {
+                        ScheduleEntry se = scheduleRepo.findById(Long.parseLong(se_id)).get();
+                        RotationDay rd = rotationRepo.findById(rd_id).get();
+                        Timeslot ts = timeslotRepo.findById(ts_id).get();
+                        Teacher dbTeacher = teacherRepo.findByFullnameAndSchool(teacher.strip(), school);
+                        StudentGroup dbGroup = groupRepo.findByNameAndSchool(group.strip(), school);
+                        if (!se.getSemester().equals(semesterFound) ||
+                                !se.getRotationDay().equals(rd) || !se.getTimeslot().equals(ts) ||
+                                (for_a.equals("group") && !se.getGroup().equals(dbGroup)) ||
+                                (for_a.equals("teacher") && !se.getTeacher().equals(dbTeacher))) {
+                            redirectView.setUrl("http://localhost:8088/err");
+                            redirectView.setHosts();
+                            return redirectView;
+                        }
+                        if (!se.equals(scheduleRepo.findBySemesterAndTeacherAndRotationDayAndTimeslot(semesterFound, dbTeacher, rd, ts))) {
+                            redirectView.setUrl("http://localhost:8088/err");
+                            redirectView.setHosts();
+                            return redirectView;
+                        }
+                        for (Student s: dbGroup.getStudents()) {
+                            if (s.getGroups().size() > 1) {
+                                ArrayList<StudentGroup> groups = new ArrayList<>(s.getGroups());
+                                groups.remove(dbGroup);
+                                for (StudentGroup g: groups) {
+                                    if (!se.equals(scheduleRepo.findBySemesterAndGroupAndRotationDayAndTimeslot(semesterFound, g, rd, ts))) {
+                                        redirectView.setUrl("http://localhost:8088/err");
+                                        redirectView.setHosts();
+                                        return redirectView;
+                                    }
+                                }
+                            }
+                        }
+                        se.setGroup(dbGroup);
+                        se.setTeacher(dbTeacher);
+                        se.setCourse(courseRepo.findByNameAndSchool(course.strip(), school));
+                        scheduleRepo.save(se);
+                        redirectView.setUrl("http://localhost:8088/logged-in/" + uid + "/semester/" + sid + "/schedule_for/" + for_a + "/" + for_id + "/edit");
 
+                    } catch (Exception e) {
+                        redirectView.setUrl("http://localhost:8088/err");
+                        redirectView.setHosts();
+                        return redirectView;
+                    }
+                }
             } else {
                 redirectView.setUrl("http://localhost:8088/err");
             }
@@ -1033,6 +1272,8 @@ public class AdminPagesController {
         redirectView.setHosts();
         return redirectView;
     }
+
+
 
     private String checkAuth(Long uid, HttpServletRequest request) {
         Optional<TeacherbookUser> user = userRepo.findById(uid);

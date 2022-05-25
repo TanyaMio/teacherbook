@@ -8,7 +8,7 @@
 <div class = groups_container>
     <input id="groupInput" type="text" name="group_search" placeholder="Search groups">
     <div class = groups th:each="group: ${groups}">
-        <a th:href="@{../group/{id}/group_view(id=${group.id})}" th:text="${group.name}" th:id="${group.id}"><br></a>
+        <a th:href="@{../group/{id}/group_view(id=${group.id})}" th:text="${group.name}" th:id="${group.id}"></a>
     </div>
 </div>
 <div>

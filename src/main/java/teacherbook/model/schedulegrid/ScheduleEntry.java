@@ -94,9 +94,13 @@ public class ScheduleEntry implements Comparable<ScheduleEntry> {
         this.group = group;
     }
 
-
     @Override
     public int compareTo(ScheduleEntry o) {
         return this.timeslot.compareTo(o.getTimeslot());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof ScheduleEntry && ((ScheduleEntry) o).getId().equals(this.id);
     }
 }

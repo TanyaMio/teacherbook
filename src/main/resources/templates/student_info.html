@@ -5,8 +5,63 @@
     <title>Student Information</title>
 </head>
 <body>
-<p th:text="{student.fullname}"></p>
-<p>Groups:</p>
-<p>Parents:</p>
+<h2 th:text="${student.fullname}"></h2>
+<div>
+    <button onclick="edit(this)">Edit Student Information</button>
+    <button onclick="delete_confirm()">Delete Student Account</button>
+</div>
+<div>
+    <p>Groups:</p>
+    <div th:each="group: ${student.groups}">
+        <span th:text="${group.name}"></span>
+        <a th:href="@{./remove_from/{id}(id=${group.id})}">[Remove from group]</a>
+    </div>
+</div>
+
+<script th:inline="javascript">
+
+    function edit(e) {
+        e.hidden = true;
+        var f = document.createElement("FORM");
+        f.setAttribute("method", "post");
+        f.setAttribute("action", "./edit_info");
+        var inpFN = document.createElement("INPUT");
+        inpFN.setAttribute("type", "text");
+        inpFN.setAttribute("name", "firstname");
+        inpFN.setAttribute("placeholder", "Enter First Name");
+        inpFN.setAttribute("id", "firstname");
+        inpFN.setAttribute("value", [[${student.first_name}]]);
+        var labelFN = document.createElement("LABEL");
+        labelFN.setAttribute("for", "firstname");
+        labelFN.innerText = "First Name: ";
+        var inpLN = document.createElement("INPUT");
+        inpLN.setAttribute("type", "text");
+        inpLN.setAttribute("name", "lastname");
+        inpLN.setAttribute("placeholder", "Enter Last Name");
+        inpLN.setAttribute("id", "lastname");
+        inpLN.setAttribute("value", [[${student.last_name}]]);
+        var labelLN = document.createElement("LABEL");
+        labelLN.setAttribute("for", "lastname");
+        labelLN.innerText = "Last Name: ";
+        var btn = document.createElement("BUTTON");
+        btn.setAttribute("type", "f");
+        btn.innerText = "Save";
+        f.append(labelFN);
+        f.append(inpFN);
+        f.append(document.createElement("BR"));
+        f.append(labelLN);
+        f.append(inpLN);
+        f.append(document.createElement("BR"));
+        f.append(btn);
+        e.parentNode.append(f);
+    }
+
+    function delete_confirm() {
+        if (confirm('Are you sure you want to delete this student account?')) {
+            window.location.href = './delete';
+        }
+    }
+</script>
+
 </body>
 </html>

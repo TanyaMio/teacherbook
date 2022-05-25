@@ -7,8 +7,18 @@
 <body>
 <div class = teachers_container>
     <div class = teachers th:each="teacher: ${teachers}">
-    <a th:href="@{./teacher/{id}(id=${teacher.teacher_id})}" th:text="${teacher.fullname}" th:id="${teacher.teacher_id}"><br></a>
+    <p th:text="${teacher.fullname}" th:id="${teacher.teacher_id}"/>
+        <button onclick="delete_confirm(this)">Delete Teacher</button>
     </div>
+    <script th:inline="javascript">
+        function delete_confirm(e) {
+            if (confirm('Are you sure you want to delete this teacher account?')) {
+                var tid = e.parentNode.firstElementChild.getAttribute("id");
+                var url = "./teacher/" + tid + "/delete";
+                window.location.href = url;
+            }
+        }
+    </script>
 </div>
 <div>
     <a href="./teacher_invite"> Invite a new teacher </a></div>

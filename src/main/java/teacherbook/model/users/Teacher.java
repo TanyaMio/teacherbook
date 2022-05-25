@@ -11,7 +11,7 @@ public class Teacher{
     private Long teacher_id;
 
     @OneToOne(mappedBy = "teacher")
-    private TeacherbookUser user;
+    private TeacherbookUser TBuser;
 
     @NotNull
     private String fullname;
@@ -73,5 +73,14 @@ public class Teacher{
 
     public String getFullname() {
         return fullname;
+    }
+
+    public TeacherbookUser getTBuser() {
+        return TBuser;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof Teacher && ((Teacher) o).getTeacher_id().equals(this.teacher_id);
     }
 }

@@ -75,4 +75,9 @@ public class RotationDay implements Comparable<RotationDay>{
     public int compareTo(RotationDay o) {
         return num_in_seq - o.num_in_seq;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof RotationDay && ((RotationDay) o).getId().equals(this.id);
+    }
 }

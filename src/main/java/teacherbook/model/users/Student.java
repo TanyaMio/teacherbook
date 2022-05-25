@@ -46,6 +46,24 @@ public class Student {
         this.fullname = this.getFullName();
     }
 
+    public String getFirst_name() {
+        return first_name;
+    }
+
+    public void setFirst_name(String first_name) {
+        this.first_name = first_name;
+        this.fullname = this.getFullName();
+    }
+
+    public String getLast_name() {
+        return last_name;
+    }
+
+    public void setLast_name(String last_name) {
+        this.last_name = last_name;
+        this.fullname = this.getFullName();
+    }
+
     public Student() {
         super();
     }
@@ -68,6 +86,10 @@ public class Student {
 
     public Collection<StudentGroup> getGroups() {
         return groups;
+    }
+
+    public TeacherbookUser getUser() {
+        return user;
     }
 
     public void addGroup(StudentGroup group) {
