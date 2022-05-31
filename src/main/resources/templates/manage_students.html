@@ -10,6 +10,7 @@
     <a class="btn" href="/logout" style="float: right">Log out</a>
 </div>
 <div class = students_container>
+    <input id="studentInput" type="text" name="student_search" placeholder="Search student">
     <div class = students th:each="student: ${students}">
         <a th:href="@{./student/{id}/student_info(id=${student.student_id})}" th:text="${student.fullname}" th:id="${student.student_id}"><br></a>
     </div>
@@ -31,5 +32,27 @@
             <button id="reg_btn" type="f">Save student</button>
     </form>
 </div>
+<script th:inline="javascript">
+    function filter(inp) {
+        inp.addEventListener("input", function (e) {
+            var val = this.value;
+            var list = document.getElementsByClassName("students");
+            if (!val) {
+                for (var i=0; i<list.length; i++) {
+                    list.item(i).firstElementChild.removeAttribute("hidden");
+                }
+            }
+            for (var i=0; i<list.length; i++) {
+                if (list.item(i).firstElementChild.innerHTML.substr(0, val.length).toUpperCase() != val.toUpperCase()) {
+                    list.item(i).setAttribute("hidden", "true");
+                } else {
+                    list.item(i).removeAttribute("hidden");
+                }
+            }
+        })
+    }
+
+    filter(document.getElementById("studentInput"));
+</script>
 </body>
 </html>

@@ -10,6 +10,7 @@
     <a class="btn" href="/logout" style="float: right">Log out</a>
 </div>
 <div class = teachers_container>
+    <input id="teacherInput" type="text" name="teacher_search" placeholder="Search teachers">
     <div class = teachers th:each="teacher: ${teachers}">
     <p th:text="${teacher.fullname}" th:id="${teacher.teacher_id}"/>
         <button onclick="delete_confirm(this)">Delete Teacher</button>
@@ -22,6 +23,27 @@
                 window.location.href = url;
             }
         }
+
+        function filter(inp) {
+            inp.addEventListener("input", function (e) {
+                var val = this.value;
+                var list = document.getElementsByClassName("teachers");
+                if (!val) {
+                    for (var i=0; i<list.length; i++) {
+                        list.item(i).firstElementChild.removeAttribute("hidden");
+                    }
+                }
+                for (var i=0; i<list.length; i++) {
+                    if (list.item(i).firstElementChild.innerHTML.substr(0, val.length).toUpperCase() != val.toUpperCase()) {
+                        list.item(i).setAttribute("hidden", "true");
+                    } else {
+                        list.item(i).removeAttribute("hidden");
+                    }
+                }
+            })
+        }
+
+        filter(document.getElementById("teacherInput"));
     </script>
 </div>
 <div>

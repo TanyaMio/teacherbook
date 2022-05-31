@@ -90,6 +90,7 @@
                         <button hidden onclick="homeworkForm(this.parentNode)" type="button">Homework</button>
                     </div>
                     <button type="button" onclick="delete_column(this.parentNode)">&times;</button>
+                    <button type="button" onclick="edit_column(this.parentNode)">&#x1F4DD;</button>
                 </div>
                 <div th:if="${el?.class?.name == 'teacherbook.model.gradebook.GradebookEntry'}" th:id="@{GE-{id}(id=${el.id})}">
                     <input hidden type="text" th:value="${el.note}" name="nt"/>
