@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Teacher Information</title>
+</head>
+<body>
+<div id="header">
+    <a class="btn" href="./teacher_home">Home</a>
+    <a class="btn" href="/logout" style="float: right">Log out</a>
+</div>
+<h2 th:text="${teacher.fullname}"></h2>
+<div>
+    <button onclick="edit(this)">Edit Teacher Information</button>
+</div>
+<script th:inline="javascript">
+
+    function edit(e) {
+        e.hidden = true;
+        var f = document.createElement("FORM");
+        f.setAttribute("method", "post");
+        f.setAttribute("action", "./edit_info");
+        var hon = document.createElement("SELECT");
+        hon.setAttribute("name", "honorific");
+        hon.setAttribute("id", "honorific");
+        var opN = document.createElement("OPTION");
+        opN.setAttribute("value", "");
+        opN.innerText = "---";
+        var opMR = document.createElement("OPTION");
+        opMR.setAttribute("value", "Mr.");
+        opMR.innerText = "Mr.";
+        var opMS = document.createElement("OPTION");
+        opMS.setAttribute("value", "Ms.");
+        opMS.innerText = "Ms.";
+        var opMRS = document.createElement("OPTION");
+        opMRS.setAttribute("value", "Mrs.");
+        opMRS.innerText = "Mrs.";
+        var opMX = document.createElement("OPTION");
+        opMX.setAttribute("value", "Mx.");
+        opMX.innerText = "Mx.";
+        hon.append(opN);
+        hon.append(opMR);
+        hon.append(opMS);
+        hon.append(opMRS);
+        hon.append(opMX);
+        var currH = [[${teacher.honorific}]];
+        if (currH) {
+            hon.value = currH;
+        }
+        var labelHon = document.createElement("LABEL");
+        labelHon.setAttribute("for", "honorific");
+        labelHon.innerText = "Honorific: ";
+        var inpFN = document.createElement("INPUT");
+        inpFN.setAttribute("type", "text");
+        inpFN.setAttribute("name", "firstname");
+        inpFN.setAttribute("placeholder", "Enter First Name");
+        inpFN.setAttribute("id", "firstname");
+        inpFN.setAttribute("value", [[${teacher.first_name}]]);
+        var labelFN = document.createElement("LABEL");
+        labelFN.setAttribute("for", "firstname");
+        labelFN.innerText = "First Name: ";
+        var inpLN = document.createElement("INPUT");
+        inpLN.setAttribute("type", "text");
+        inpLN.setAttribute("name", "lastname");
+        inpLN.setAttribute("placeholder", "Enter Last Name");
+        inpLN.setAttribute("id", "lastname");
+        inpLN.setAttribute("value", [[${teacher.last_name}]]);
+        var labelLN = document.createElement("LABEL");
+        labelLN.setAttribute("for", "lastname");
+        labelLN.innerText = "Last Name: ";
+        var inpEM = document.createElement("INPUT");
+        inpEM.setAttribute("type", "text");
+        inpEM.setAttribute("name", "email");
+        inpEM.setAttribute("placeholder", "Enter new e-mail");
+        inpEM.setAttribute("id", "email");
+        inpEM.setAttribute("value", [[${teacher.TBuser.username}]]);
+        var labelEM = document.createElement("LABEL");
+        labelEM.setAttribute("for", "email");
+        labelEM.innerText = "New E-mail: ";
+        var btn = document.createElement("BUTTON");
+        btn.setAttribute("type", "f");
+        btn.innerText = "Save";
+        f.append(labelHon);
+        f.append(hon);
+        f.append(document.createElement("BR"));
+        f.append(labelFN);
+        f.append(inpFN);
+        f.append(document.createElement("BR"));
+        f.append(labelLN);
+        f.append(inpLN);
+        f.append(document.createElement("BR"));
+        f.append(document.createElement("BR"));
+        f.append(labelEM);
+        f.append(inpEM);
+        f.append(document.createElement("BR"));
+        f.append(btn);
+        e.parentNode.append(f);
+    }
+</script>
+</body>
+</html>

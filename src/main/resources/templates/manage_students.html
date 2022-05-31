@@ -5,6 +5,10 @@
     <title>Manage Students</title>
 </head>
 <body>
+<div id="header">
+    <a class="btn" href="../admin_home">Home</a>
+    <a class="btn" href="/logout" style="float: right">Log out</a>
+</div>
 <div class = students_container>
     <div class = students th:each="student: ${students}">
         <a th:href="@{./student/{id}/student_info(id=${student.student_id})}" th:text="${student.fullname}" th:id="${student.student_id}"><br></a>

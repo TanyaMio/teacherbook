@@ -18,7 +18,7 @@ public class CalendarDay implements Comparable<CalendarDay>{
 
     @ManyToOne
     @JoinColumn(name="rotation_day_id")
-    private RotationDay rotation_day;
+    private RotationDay rotationday;
 
     @NotNull
     private Date date;
@@ -39,8 +39,8 @@ public class CalendarDay implements Comparable<CalendarDay>{
         return semester;
     }
 
-    public RotationDay getRotation_day() {
-        return rotation_day;
+    public RotationDay getRotationday() {
+        return rotationday;
     }
 
     public Date getDate() {
@@ -51,8 +51,8 @@ public class CalendarDay implements Comparable<CalendarDay>{
         this.semester = semester;
     }
 
-    public void setRotation_day(RotationDay rotation_day) {
-        this.rotation_day = rotation_day;
+    public void setRotationday(RotationDay rotation_day) {
+        this.rotationday = rotation_day;
     }
 
     public void setDate(Date date) {
@@ -67,9 +67,14 @@ public class CalendarDay implements Comparable<CalendarDay>{
     @Override
     public String toString() {
         String day = "" + this.date.toLocalDate().getDayOfMonth();
-        if (this.rotation_day != null) {
-            day += "\n" + this.rotation_day.toString();
+        if (this.rotationday != null) {
+            day += "\n" + this.rotationday.toString();
         }
         return day;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof CalendarDay && ((CalendarDay) o).getId().equals(this.id);
     }
 }

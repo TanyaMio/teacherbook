@@ -35,7 +35,7 @@ public class RotationDay implements Comparable<RotationDay>{
         this.num_in_seq = NinSeq;
     }
 
-    @OneToMany(mappedBy = "rotation_day")
+    @OneToMany(mappedBy = "rotationday")
     private Collection<CalendarDay> calendar_days;
 
     public Long getId() {

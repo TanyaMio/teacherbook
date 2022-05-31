@@ -5,9 +5,15 @@
     <title>Student Information</title>
 </head>
 <body>
+<div id="header">
+    <a class="btn" href="../../../admin_home">Home</a>
+    <a class="btn" href="/logout" style="float: right">Log out</a>
+</div>
 <h2 th:text="${student.fullname}"></h2>
+<p th:text="@{Username: {uname}(uname=${student.user.username})}" id="uname"></p>
 <div>
     <button onclick="edit(this)">Edit Student Information</button>
+    <button onclick="edit_login(this)">Edit Log In Information</button>
     <button onclick="delete_confirm()">Delete Student Account</button>
 </div>
 <div>
@@ -19,6 +25,53 @@
 </div>
 
 <script th:inline="javascript">
+
+    function edit_login(e) {
+        e.hidden = true;
+        document.getElementById("uname").hidden = true;
+        var f = document.createElement("FORM");
+        f.setAttribute("method", "post");
+        f.setAttribute("action", "./edit_login");
+        var inpUN = document.createElement("INPUT");
+        inpUN.setAttribute("type", "text");
+        inpUN.setAttribute("name", "username");
+        inpUN.setAttribute("placeholder", "Enter New Username");
+        inpUN.setAttribute("id", "username");
+        var fullUname = [[${student.user.username}]];
+        inpUN.setAttribute("value", fullUname.substr(0, fullUname.lastIndexOf("_")));
+        var labelUN = document.createElement("LABEL");
+        labelUN.setAttribute("for", "username");
+        labelUN.innerText = "Username: ";
+        var inpPSWD = document.createElement("INPUT");
+        inpPSWD.setAttribute("type", "password");
+        inpPSWD.setAttribute("name", "pswd");
+        inpPSWD.setAttribute("placeholder", "Enter New Password");
+        inpPSWD.setAttribute("id", "pswd");
+        var labelPSWD = document.createElement("LABEL");
+        labelPSWD.setAttribute("for", "pswd");
+        labelPSWD.innerText = "New Password: ";
+        var inpPSWD2 = document.createElement("INPUT");
+        inpPSWD2.setAttribute("type", "password");
+        inpPSWD2.setAttribute("name", "pswd2");
+        inpPSWD2.setAttribute("placeholder", "Repeat New Password");
+        inpPSWD2.setAttribute("id", "pswd2");
+        var labelPSWD2 = document.createElement("LABEL");
+        labelPSWD2.setAttribute("for", "pswd2");
+        labelPSWD2.innerText = "Confirm Password: ";
+        var btn = document.createElement("BUTTON");
+        btn.setAttribute("type", "f");
+        btn.innerText = "Save";
+        f.append(labelUN);
+        f.append(inpUN);
+        f.append(document.createElement("BR"));
+        f.append(labelPSWD);
+        f.append(inpPSWD);
+        f.append(labelPSWD2);
+        f.append(inpPSWD2);
+        f.append(document.createElement("BR"));
+        f.append(btn);
+        e.parentNode.append(f);
+    }
 
     function edit(e) {
         e.hidden = true;

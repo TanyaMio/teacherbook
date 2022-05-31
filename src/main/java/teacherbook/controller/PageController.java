@@ -88,8 +88,10 @@ public class PageController {
         Optional<TeacherbookUser> user = userRepo.findById(Long.parseLong(uid));
         SessionInformation sessionInfo = sessionRegistry.getSessionInformation(request.getSession().getId());
         if (sessionInfo != null && !sessionInfo.isExpired()) {
-            if (dataValidator.emailIsValid(sessionInfo.getPrincipal().toString())) {
-                TeacherbookUser userAuth = userRepo.findByUsername(sessionInfo.getPrincipal().toString());
+            String uname = sessionInfo.getPrincipal().toString();
+            if (dataValidator.emailIsValid(uname) ||
+            dataValidator.loginIsValid(uname.substring(0, uname.lastIndexOf("_")))) {
+                TeacherbookUser userAuth = userRepo.findByUsername(uname);
                 if (userAuth != null) {
                     if (user.isPresent()) {
                         TeacherbookUser userFound = user.get();

@@ -1,7 +1,10 @@
 package teacherbook.model.users;
 
+import teacherbook.model.gradebook.Gradebook;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Collection;
 
 @Entity
 public class Teacher{
@@ -27,6 +30,13 @@ public class Teacher{
     @ManyToOne
     @JoinColumn(name="school_id")
     private School school;
+
+    @ManyToMany
+    @JoinTable(
+            name = "teacher_gradebooks",
+            joinColumns = @JoinColumn(name = "teacher_id"),
+            inverseJoinColumns = @JoinColumn(name = "gradebook_id"))
+    private Collection<Gradebook> gradebooks;
 
     public String getFullName() {
         if (this.honorific != null) {
@@ -77,6 +87,35 @@ public class Teacher{
 
     public TeacherbookUser getTBuser() {
         return TBuser;
+    }
+
+    public Collection<Gradebook> getGradebooks() {return gradebooks;}
+
+    public void addGradebook(Gradebook g) {
+        if (!this.gradebooks.contains(g)) {
+            this.gradebooks.add(g);
+        }
+    }
+
+    public void removeGradebook(Gradebook g) {
+        if (this.gradebooks.contains(g)) {
+            this.gradebooks.remove(g);
+        }
+    }
+
+    public void setHonorific(String honorific) {
+        this.honorific = honorific;
+        this.fullname = this.getFullName();
+    }
+
+    public void setFirst_name(String first_name) {
+        this.first_name = first_name;
+        this.fullname = this.getFullName();
+    }
+
+    public void setLast_name(String last_name) {
+        this.last_name = last_name;
+        this.fullname = this.getFullName();
     }
 
     @Override

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Home</title>
+</head>
+<body>
+<div id="header">
+    <a class="btn" href="/logout" style="float: right">Log out</a>
+</div>
+<div>
+    <div>
+        <a href="./student_grades">My grades</a>
+        <br/>
+        <a href="./student_homework">My homework</a>
+    </div>
+    <div style="left: 10%; position: absolute; top: 0;">
+        <h2 th:text="@{Hello, {fname} {lname}!(fname=${student.first_name}, lname=${student.last_name})}"></h2>
+        <p>Here is your homework for the next week:</p>
+        <ul>
+            <li th:each="hw: ${homework}">
+                <span th:text="${hw.gradebook.course.name}"></span>
+                <span>: </span>
+                <span th:text="${hw.content}"></span>
+                <span> (Due on: </span>
+                <span th:text="${hw.duedate}"></span>
+                <span>)</span>
+            </li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>

@@ -5,6 +5,10 @@
     <title>Rotation Day Names</title>
 </head>
 <body>
+<div id="header">
+    <a class="btn" href="../../admin_home">Home</a>
+    <a class="btn" href="/logout" style="float: right">Log out</a>
+</div>
 <div th:each="calendar: ${calendars}">
     <div th:each="month: ${calendar.keySet()}">
         <p><b th:text="${month}"></b></p>

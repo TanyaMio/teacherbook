@@ -5,6 +5,10 @@
     <title>Manage Courses</title>
 </head>
 <body>
+<div id="header">
+    <a class="btn" href="../admin_home">Home</a>
+    <a class="btn" href="/logout" style="float: right">Log out</a>
+</div>
 <div class = courses_container>
     <input id="courseInput" type="text" name="course_search" placeholder="Search courses">
     <div class = courses th:each="course: ${courses}">

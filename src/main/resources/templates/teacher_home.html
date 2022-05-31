@@ -1,10 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>Teacher Home</title>
 </head>
 <body>
-This is homepage for a teacher!
+<div id="header">
+    <a class="btn" href="/logout" style="float: right">Log out</a>
+</div>
+<a href="./teacher_info">Edit Personal Information</a>
+<br/>
+<input id="gradebookInput" type="text" name="gradebook_search" placeholder="Search Gradebooks">
+<div class = gradebooks th:each="gradebook: ${gradebooks}">
+    <a th:href="@{./gradebook/{id}/edit(id=${gradebook.id})}" th:text="${gradebook.name}" th:id="${gradebook.id}"></a>
+</div>
+<script th:inline="javascript">
+    function filter(inp) {
+        inp.addEventListener("input", function (e) {
+            var val = this.value;
+            var list = document.getElementsByClassName("gradebooks");
+            if (!val) {
+                for (var i=0; i<list.length; i++) {
+                    list.item(i).firstElementChild.removeAttribute("hidden");
+                }
+            }
+            for (var i=0; i<list.length; i++) {
+                if (list.item(i).firstElementChild.innerHTML.substr(0, val.length).toUpperCase() != val.toUpperCase()) {
+                    list.item(i).setAttribute("hidden", "true");
+                } else {
+                    list.item(i).removeAttribute("hidden");
+                }
+            }
+        })
+    }
+
+    filter(document.getElementById("gradebookInput"));
+</script>
 </body>
 </html>

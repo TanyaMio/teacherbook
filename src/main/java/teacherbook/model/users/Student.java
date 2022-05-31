@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
 @Entity
-public class Student {
+public class Student implements Comparable<Student>{
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
@@ -102,5 +102,15 @@ public class Student {
         if (this.groups.contains(group)) {
             this.groups.remove(group);
         }
+    }
+
+    @Override
+    public int compareTo(Student o) {
+        return this.fullname.compareTo(o.getFullname());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof Student && ((Student) o).getStudent_id().equals(this.student_id);
     }
 }

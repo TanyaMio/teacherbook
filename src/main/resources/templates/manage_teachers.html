@@ -5,6 +5,10 @@
     <title>Manage Teachers</title>
 </head>
 <body>
+<div id="header">
+    <a class="btn" href="../admin_home">Home</a>
+    <a class="btn" href="/logout" style="float: right">Log out</a>
+</div>
 <div class = teachers_container>
     <div class = teachers th:each="teacher: ${teachers}">
     <p th:text="${teacher.fullname}" th:id="${teacher.teacher_id}"/>

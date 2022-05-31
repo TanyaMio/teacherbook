@@ -5,10 +5,14 @@
     <title>Schedule Edit</title>
 </head>
 <body>
+<div id="header">
+    <a class="btn" href="../../../../../admin_home">Home</a>
+    <a class="btn" href="/logout" style="float: right">Log out</a>
+</div>
     <h2 id="h_teacher" th:if="${#strings.equals(for_str, 'teacher')}" th:text="@{Schedule for {h} {name} {surname}(h=${schedule_for.honorific},name=${schedule_for.first_name}, surname=${schedule_for.last_name})}"></h2>
     <h2 id="h_group" th:if="${#strings.equals(for_str, 'group')}" th:text="@{Schedule for {name}(name=${schedule_for.name})}"></h2>
     <div id="schedule_form" style="height: 100vh; width: 100%; background-color: rgba(0, 0, 150, 0.5); display: none;">
-        <a href="javascript:void(0)" class="closebtn" onclick="closeForm()" style="margin-left: auto; margin-right: 10px;">&times;</a>
+        <a href="javascript:void(0)" class="closebtn" onclick="closeForm()" style="float: right;">&times;</a>
         <div style="width: fit-content; margin: auto">
             <strong id="rd_name"></strong>
             <strong id="ts_name"></strong>
@@ -29,10 +33,15 @@
                 <label for="groupSearch">Group: </label>
                 <input type="text" name="group" id="groupSearch" required/>
             </div>
+            <button id="del" type="button" onclick="delete_entry()" hidden>Delete Entry</button>
             <button type="f" onclick="activate_inp()">Save</button>
         </form>
     </div>
     <div id="calendar">
+        <div>
+            <p id="msg"></p>
+            <button onclick="generate()">Generate Gradebook columns</button>
+        </div>
         <table id="schedule_table" style="border-collapse: collapse;">
             <tr th:each="row: ${calendar}">
                 <td th:each="el: ${row}">
@@ -61,6 +70,13 @@
         </table>
     </div>
     <script th:inline="javascript">
+
+        function generate() {
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.open( "GET", "./generate_columns", false ); // false for synchronous request
+            xmlHttp.send( null );
+            document.getElementById("msg").innerText = xmlHttp.responseText;
+        }
 
         function activate_inp() {
             var schedule_for_str = [[${for_str}]];
@@ -94,6 +110,7 @@
                 } else {
                     document.getElementById("groupSearch").setAttribute("value", e.parentNode.children.item(2).innerText);
                 }
+                document.getElementById("del").hidden = null;
             }
             var coursesnames = [[${coursesnames}]];
             autocomplete(document.getElementById("courseSearch"), coursesnames);
@@ -125,6 +142,7 @@
             document.getElementById("teacherSearch").setAttribute("value", "");
             document.getElementById("groupSearch").setAttribute("value", "");
             document.getElementById("calendar").style.display='block';
+            document.getElementById("del").hidden = true;
         }
 
         function autocomplete(inp, arr_names) {
@@ -194,6 +212,18 @@
             document.addEventListener("click", function (e) {
                 closeAllLists(e.target);
             });
+        }
+
+        function delete_entry() {
+            var course = document.getElementById("courseSearch").value;
+            var group = document.getElementById("groupSearch").value;
+            var teacher = document.getElementById("teacherSearch").value;
+            var q = "Delete " + course + " class for group " + group + " with " + teacher + "?";
+            if (confirm(q)) {
+                var geid = document.getElementById("se_id").value;
+                var url = "./delete/" + geid;
+                window.location.href = url;
+            }
         }
 
     </script>

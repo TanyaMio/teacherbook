@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>My Homework</title>
+</head>
+<body>
+<div id="header">
+    <a class="btn" href="./student_home">Home</a>
+    <a class="btn" href="/logout" style="float: right">Log out</a>
+</div>
+<h2>My Homework</h2>
+<div th:each="entry: ${homework}">
+    <div>
+        <h3 th:text="${entry.key.name}" onclick="show_hw(this)"></h3>
+        <div hidden>
+            <div th:each="hw: ${entry.value}">
+                <span th:text="${hw.content}"></span>
+                <span> (Due on: </span>
+                <span th:text="${hw.duedate}"></span>
+                <span>)</span>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function show_hw(e) {
+        var content = e.nextElementSibling;
+        if (content.hidden){
+            content.hidden = null;
+        } else {
+            content.hidden = true;
+        }
+    }
+</script>
+</body>
+</html>

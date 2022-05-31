@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Gradebook Edit</title>
+</head>
+<body>
+<div id="header">
+    <a class="btn" href="../../teacher_home">Home</a>
+    <a class="btn" href="/logout" style="float: right">Log out</a>
+</div>
+<h2 th:text="${gradebook.name}"></h2>
+<div id="grade_form" style="height: 100vh; width: 100%; background-color: rgb(59,60,113); display: none;">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeForm()" style="float: right;">&times;</a>
+    <div style="width: fit-content; margin: auto">
+        <strong id="assignment_name"></strong>
+        <br/>
+        <strong id="student_name"></strong>
+    </div>
+    <form method="post" style="width: fit-content; margin: auto" autocomplete="off">
+        <input hidden type="number" id="entry" name="entry" required/>
+        <label for="grade">Grade: </label>
+        <input type="number" min="0" max="100" id="grade" name="grade" placeholder="Enter grade from 0 to 100" required/>
+        <br/>
+        <label for="note">Leave a note for the student:</label>
+        <br/>
+        <input type="text" id="note" name="note"/>
+        <br/>
+        <button type="f">Save</button>
+    </form>
+</div>
+<div id="homework_form" style="height: 100vh; width: 100%; background-color: rgba(0, 0, 150, 0.5); display: none;">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeHW()" style="float: right;">&times;</a>
+    <div style="width: fit-content; margin: auto">
+        <strong>Homework for</strong>
+        <br/>
+        <strong id="assignment"></strong>
+    </div>
+    <form method="post" action="./homework" style="width: fit-content; margin: auto" autocomplete="off">
+        <input hidden type="number" id="a_id" name="a_id" required/>
+        <input hidden type="number" id="hw_id" name="hw_id"/>
+        <label for="hw">Homework: </label>
+        <input type="text" id="hw" name="hw_content" placeholder="Enter homework tasks" required/>
+        <br/>
+        <label for="duedate">Due Date:</label>
+        <input type="date" id="duedate" name="duedate" required/>
+        <br/>
+        <input type="checkbox" id="hascolumn" name="hascolumn" onchange="columnName(this)" value="false"/>
+        <label for="hascolumn">Separate column in the gradebook</label>
+        <br/>
+        <div hidden id="column">
+            <label for="cname">Column Name:</label>
+            <br/>
+            <input type="text" id="cname" name="cname"/>
+        </div>
+        <button id="del_hw" type="button" onclick="delete_hw()" hidden>Delete Homework</button>
+        <button id="hw_btn" type="f">Save</button>
+    </form>
+</div>
+<div id="column_form" style="height: 100vh; width: 100%; background-color: rgba(0, 0, 150, 0.5); display: none;">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeColumn()" style="float: right;">&times;</a>
+    <div style="width: fit-content; margin: auto">
+        <strong>New Column</strong>
+    </div>
+    <form method="post" action="./new_column" style="width: fit-content; margin: auto" autocomplete="off">
+        <label for="col_name">Name: </label>
+        <input type="text" id="col_name" name="col_name" placeholder="Enter column name" required/>
+        <br/>
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" required/>
+        <br/>
+        <input type="checkbox" id="att", name="att"/>
+        <label for="att">Include Attendance</label>
+        <br/>
+        <button id="col_btn" type="f">Save</button>
+    </form>
+</div>
+<div id="gradebook_view">
+    <table id="gradebook_table" style="border-collapse: collapse;">
+        <tr th:each="row: ${gradebook_data}">
+            <td th:each="el: ${row}">
+                <div th:if="${el?.class?.name == 'teacherbook.model.gradebook.Assignment'}" th:id="@{A-{id}(id=${el.id})}">
+                    <p style="white-space: pre-line" th:text="${el.name}"/>
+                    <div th:if="${el.homework != null}" th:id="@{HW-{id}(id=${el?.homework?.id})}" hidden>
+                        <p th:text="${el?.homework?.content}"></p>
+                        <p th:text="${el?.homework?.duedate}"></p>
+                        <p th:if="${el?.homework?.has_column == true}" th:text="${el?.homework?.column?.name}"></p>
+                    </div>
+                    <div th:unless="${el.isHomework == true}" style="height: 30px;" onmouseenter="this.firstElementChild.removeAttribute('hidden')" onmouseleave="this.firstElementChild.setAttribute('hidden','true')">
+                        <button hidden onclick="homeworkForm(this.parentNode)" type="button">Homework</button>
+                    </div>
+                    <button type="button" onclick="delete_column(this.parentNode)">&times;</button>
+                </div>
+                <div th:if="${el?.class?.name == 'teacherbook.model.gradebook.GradebookEntry'}" th:id="@{GE-{id}(id=${el.id})}">
+                    <input hidden type="text" th:value="${el.note}" name="nt"/>
+                    <input th:if="${el.attendance == true AND el.attendanceValue == true}" type="checkbox" onchange="attendanceChange(this)" checked/>
+                    <input th:if="${el.attendance == true AND el.attendanceValue == false}" type="checkbox" onchange="attendanceChange(this)"/>
+                    <p th:text="${el.grade}"></p>
+                    <div style="height: 30px;" onmouseenter="this.firstElementChild.removeAttribute('hidden')" onmouseleave="this.firstElementChild.setAttribute('hidden','true')">
+                        <button hidden onclick="openForm(this.parentNode)" type="button">Edit</button>
+                    </div>
+                </div>
+                <p style="white-space: pre-line" th:unless="${el?.class?.name == 'teacherbook.model.gradebook.GradebookEntry' OR el?.class?.name == 'teacherbook.model.gradebook.Assignment'}" th:text="${el}" onclick="colorChange(this)"></p>
+            </td>
+            <td class="add_column">
+                <p></p>
+            </td>
+        </tr>
+    </table>
+</div>
+<style>
+    td {
+        border: 1px solid black;
+    }
+</style>
+
+<script th:inline="javascript">
+
+    function delete_hw() {
+        var q = "Are you sure you want to delete this homework?\n" + document.getElementById("hw").value;
+        if (confirm(q)) {
+            var url = "./delete_hw/" + document.getElementById("hw_id").value;
+            window.location.href = url;
+        }
+    }
+
+    function delete_column(e) {
+        var assignment_name = e.firstElementChild.innerText;
+        var q = "Delete column for " + assignment_name + "?";
+        if (confirm(q)) {
+            var assignment = e.getAttribute("id");
+            var assignment_id = assignment.substr(assignment.lastIndexOf("-")+1);
+            var url = "./delete_column/" + assignment_id;
+            window.location.href = url;
+
+        }
+    }
+
+    function colorChange(e) {
+        var tr = e.parentNode.parentNode;
+        if (tr.style.backgroundColor !== 'rgb(99, 170, 199)') {
+            tr.style.backgroundColor = 'rgb(99, 170, 199)';
+        } else {
+            tr.style.backgroundColor = 'rgb(255, 255, 255)';
+        }
+    }
+
+    function attendanceChange(e) {
+        var xmlHttp = new XMLHttpRequest();
+        var ge = e.parentNode.getAttribute("id");
+        var ge_id = ge.substr(ge.lastIndexOf("-")+1);
+        var url = "./edit/attendance/" + ge_id + "/set_to/" + e.checked;
+        xmlHttp.open( "GET", url, false ); // false for synchronous request
+        xmlHttp.send( null );
+        if (xmlHttp.responseText !== 'Success!!!') {
+            e.checked = !e.checked;
+        }
+    }
+
+    function openForm(e) {
+        document.getElementById("grade_form").style.display='block';
+        document.getElementById("gradebook_view").style.display='none';
+        var id_str = e.parentNode.getAttribute("id");
+        document.getElementById("entry").setAttribute("value", id_str.substr(id_str.lastIndexOf("-")+1));
+        document.getElementById("note").setAttribute("value", e.parentNode.firstElementChild.getAttribute("value"));
+        document.getElementById("grade").setAttribute("value", e.parentNode.children.item(2).innerText);
+    }
+
+    function closeForm() {
+        document.getElementById("grade_form").style.display='none';
+        document.getElementById("gradebook_view").style.display='block';
+        document.getElementById("entry").setAttribute("value", "");
+        document.getElementById("note").setAttribute("value", "");
+        document.getElementById("grade").setAttribute("value", "");
+    }
+
+    function homeworkForm(e) {
+        document.getElementById("homework_form").style.display='block';
+        document.getElementById("gradebook_view").style.display='none';
+        document.getElementById("assignment").innerText = e.parentNode.firstElementChild.innerText;
+        var id_str = e.parentNode.getAttribute("id");
+        document.getElementById("a_id").setAttribute("value", id_str.substr(id_str.lastIndexOf("-")+1));
+        var second_ch = e.parentNode.children.item(1);
+        if (second_ch.getAttribute("id").substr(0, 3) === "HW-") {
+            document.getElementById("del_hw").hidden = null;
+            id_str = second_ch.getAttribute("id");
+            document.getElementById("hw_id").setAttribute("value", id_str.substr(id_str.lastIndexOf("-")+1));
+            document.getElementById("hw").setAttribute("value", second_ch.firstElementChild.innerText);
+            document.getElementById("duedate").setAttribute("value", second_ch.children.item(1).innerText);
+            if (second_ch.children.length > 2) {
+                document.getElementById("hascolumn").checked = true;
+                document.getElementById("hascolumn").setAttribute("value", "true");
+                document.getElementById("column").style.display='block';
+                document.getElementById("cname").disabled = false;
+                document.getElementById("cname").setAttribute("value", second_ch.children.item(2).innerText);
+            } else {
+                document.getElementById("hascolumn").checked = false;
+                document.getElementById("hascolumn").setAttribute("value", "false");
+                document.getElementById("column").style.display='none';
+                document.getElementById("cname").disabled = true;
+                document.getElementById("cname").setAttribute("value", "");
+            }
+        }
+    }
+
+    function columnName(e) {
+        if (e.checked) {
+            e.setAttribute("value", "true");
+            document.getElementById("column").style.display='block';
+            document.getElementById("cname").disabled = false;
+        } else  {
+            e.setAttribute("value", "false");
+            document.getElementById("column").style.display='none';
+            document.getElementById("cname").disabled = true;
+        }
+    }
+
+    function closeHW() {
+        document.getElementById("homework_form").style.display='none';
+        document.getElementById("gradebook_view").style.display='block';
+        document.getElementById("assignment").innerText = "";
+        document.getElementById("a_id").setAttribute("value", "");
+        document.getElementById("hw_id").setAttribute("value", "");
+        document.getElementById("hw").setAttribute("value", "");
+        document.getElementById("duedate").setAttribute("value", "");
+        document.getElementById("hascolumn").checked = false;
+        document.getElementById("hascolumn").dispatchEvent(new Event("onchange"));
+        document.getElementById("cname").setAttribute("value", "");
+        document.getElementById("del_hw").hidden = true;
+    }
+
+    function addColumn() {
+        document.getElementById("column_form").style.display='block';
+        document.getElementById("gradebook_view").style.display='none';
+    }
+
+    function closeColumn() {
+        document.getElementById("column_form").style.display='none';
+        document.getElementById("gradebook_view").style.display='block';
+        document.getElementById("col_name").setAttribute("value", "");
+        document.getElementById("date").setAttribute("value", "");
+    }
+
+    var extra_column = document.getElementsByClassName("add_column");
+    var add_btn = document.createElement("BUTTON");
+    add_btn.innerText = "+";
+    add_btn.setAttribute("onclick", "addColumn()");
+    extra_column.item(0).append(add_btn);
+
+</script>
+</body>
+</html>

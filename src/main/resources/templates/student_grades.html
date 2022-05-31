@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>My Grades</title>
+</head>
+<body>
+<div id="header">
+    <a class="btn" href="./student_home">Home</a>
+    <a class="btn" href="/logout" style="float: right">Log out</a>
+</div>
+<h2>My Grades</h2>
+<div th:each="entry: ${grades}">
+    <div>
+        <h3 th:text="${entry.key.name}" onclick="show_grades(this)"></h3>
+        <div hidden>
+            <div th:each="grade: ${entry.value}">
+                <span th:text="${grade.assignment.name}"></span>
+                <span> - </span>
+                <span th:text="${grade?.grade}"></span>
+                <br/>
+                <span style="white-space: pre">  Note: </span>
+                <span th:text="${grade?.note}"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function show_grades(e) {
+        var content = e.nextElementSibling;
+        if (content.hidden){
+            content.hidden = null;
+        } else {
+            content.hidden = true;
+        }
+    }
+</script>
+</body>
+</html>

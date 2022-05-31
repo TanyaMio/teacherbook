@@ -1,6 +1,5 @@
 package teacherbook.model.schedulegrid;
 
-import teacherbook.model.schedulegrid.CalendarDay;
 import teacherbook.model.users.School;
 
 import javax.persistence.*;
@@ -24,9 +23,9 @@ public class Semester {
     private String name;
 
     @NotNull
-    private Date start_date;
+    private Date startDate;
     @NotNull
-    private Date end_date;
+    private Date endDate;
     @NotNull
     private String workdays;
 
@@ -47,8 +46,8 @@ public class Semester {
 
     public Semester(String name, Date start_date, Date end_date, int rotation_length, String workdays) {
         this.name = name;
-        this.start_date = start_date;
-        this.end_date = end_date;
+        this.startDate = start_date;
+        this.endDate = end_date;
         this.rotation_length = rotation_length;
         this.workdays = workdays;
         this.calendar = new ArrayList<CalendarDay>();
@@ -62,12 +61,12 @@ public class Semester {
         return school;
     }
 
-    public Date getStart_date() {
-        return start_date;
+    public Date getStartDate() {
+        return startDate;
     }
 
-    public Date getEnd_date() {
-        return end_date;
+    public Date getEndDate() {
+        return endDate;
     }
 
     public String getWorkdays() {
@@ -82,12 +81,12 @@ public class Semester {
         this.school = school;
     }
 
-    public void setStart_date(Date start_date) {
-        this.start_date = start_date;
+    public void setStartDate(Date start_date) {
+        this.startDate = start_date;
     }
 
-    public void setEnd_date(Date end_date) {
-        this.end_date = end_date;
+    public void setEndDate(Date end_date) {
+        this.endDate = end_date;
     }
 
     public void setWorkdays(String workdays) {

@@ -5,6 +5,10 @@
     <title>Manage Semesters</title>
 </head>
 <body>
+<div id="header">
+    <a class="btn" href="../admin_home">Home</a>
+    <a class="btn" href="/logout" style="float: right">Log out</a>
+</div>
 <div class = semesters_container>
     <div class = semesters th:each="semester: ${semesters}">
         <a th:href="@{../semester/{id}/calendar(id=${semester.id})}" th:text="${semester.name}" th:id="${semester.id}"><br></a>

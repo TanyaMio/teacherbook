@@ -1,7 +1,6 @@
 package teacherbook.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Controller;
@@ -10,12 +9,20 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 import teacherbook.model.Course;
 import teacherbook.model.StudentGroup;
+import teacherbook.model.gradebook.Assignment;
+import teacherbook.model.gradebook.Gradebook;
+import teacherbook.model.gradebook.GradebookEntry;
+import teacherbook.model.gradebook.Homework;
 import teacherbook.model.schedulegrid.*;
 import teacherbook.model.users.School;
 import teacherbook.model.users.Student;
 import teacherbook.model.users.Teacher;
 import teacherbook.model.users.TeacherbookUser;
 import teacherbook.repositories.*;
+import teacherbook.repositories.gradebook.AssignmentRepository;
+import teacherbook.repositories.gradebook.GradebookEntryRepository;
+import teacherbook.repositories.gradebook.GradebookRepository;
+import teacherbook.repositories.gradebook.HomeworkRepository;
 import teacherbook.repositories.users.StudentRepository;
 import teacherbook.repositories.users.TeacherRepository;
 import teacherbook.repositories.users.UserRepository;
@@ -57,6 +64,15 @@ public class AdminPagesController {
     private CourseRepository courseRepo;
     @Autowired
     private ScheduleEntryRepository scheduleRepo;
+
+    @Autowired
+    private GradebookRepository gradebookRepo;
+    @Autowired
+    private AssignmentRepository assignmentRepo;
+    @Autowired
+    private GradebookEntryRepository gradeRepo;
+    @Autowired
+    private HomeworkRepository homeworkRepo;
 
     @Autowired
     private SessionRegistry sessionRegistry;
@@ -116,7 +132,9 @@ public class AdminPagesController {
         String checkAuthResult = checkAuth(uid, request);
         if (checkAuthResult.equals("**success**")) {
             TeacherbookUser userFound = userRepo.findById(uid).get();
-            model.addAttribute("students", userFound.getSchool().getStudents());
+            ArrayList<Student> students = new ArrayList<>(userFound.getSchool().getStudents());
+            students.sort(Student::compareTo);
+            model.addAttribute("students", students);
             return "manage_students";
         } else {
             return checkAuthResult;
@@ -270,7 +288,7 @@ public class AdminPagesController {
                         row_ind = 1;
                     }
                     calendar_table.get(current_month).get(row_ind).add(calendar.get(d).toString());
-                    if(calendar.get(d).getRotation_day() != null) {
+                    if(calendar.get(d).getRotationday() != null) {
                         workdays_fetched++;
                     }
                     if(date.getDayOfWeek().getValue() == 7 &&
@@ -419,6 +437,7 @@ public class AdminPagesController {
                 StudentGroup groupFound = group.get();
                 model.addAttribute("group", groupFound);
                 ArrayList<Student> students = new ArrayList<>(school.getStudents());
+                students.sort(Student::compareTo);
                 ArrayList<String> studentnames = new ArrayList<>();
                 ArrayList<Long> studentids = new ArrayList<>();
                 for (Student s: students) {
@@ -539,17 +558,17 @@ public class AdminPagesController {
                     col_ind = date.getDayOfWeek().getValue();
                     String date_str = date.getMonth().getDisplayName(TextStyle.SHORT, request.getLocale()) + " "
                             + date.getDayOfMonth();
-                    if (calendar.get(d).getRotation_day() != null) {
+                    if (calendar.get(d).getRotationday() != null) {
                         workdays_fetched++;
-                        date_str += "\n" + calendar.get(d).getRotation_day().getName();
+                        date_str += "\n" + calendar.get(d).getRotationday().getName();
                         calendar_table.get(row_ind).set(col_ind, date_str);
                         ArrayList<ScheduleEntry> schedule;
                         if (for_a.equals("group")) {
                             schedule = new ArrayList<>(scheduleRepo.findAllBySemesterAndGroupAndRotationDay(semester,
-                                    groupRepo.findById(for_id).get(), calendar.get(d).getRotation_day()));
+                                    groupRepo.findById(for_id).get(), calendar.get(d).getRotationday()));
                         } else {
                             schedule = new ArrayList<>(scheduleRepo.findAllBySemesterAndTeacherAndRotationDay(semester,
-                                    teacherRepo.findById(for_id).get(), calendar.get(d).getRotation_day()));
+                                    teacherRepo.findById(for_id).get(), calendar.get(d).getRotationday()));
                         }
                         schedule.sort(ScheduleEntry::compareTo);
                         int schedule_i = 0;
@@ -559,7 +578,7 @@ public class AdminPagesController {
                                 calendar_table.get(row_ind+i).set(col_ind, schedule.get(schedule_i));
                                 schedule_i++;
                             } else {
-                                calendar_table.get(row_ind+i).set(col_ind, calendar.get(d).getRotation_day());
+                                calendar_table.get(row_ind+i).set(col_ind, calendar.get(d).getRotationday());
                             }
                         }
                         for (ScheduleEntry se: schedule) {
@@ -620,6 +639,214 @@ public class AdminPagesController {
                 return "schedule_edit";
             } else {
                 return "err";
+            }
+        } else {
+            return checkAuthResult;
+        }
+    }
+
+    @GetMapping("logged-in/{uid}/semester/{sid}/schedule_for/{for_a}/{for_id}/delete/{se_id}")
+    @ResponseBody
+    public RedirectView schedule_entry_delete(@PathVariable Long uid, @PathVariable Long sid,
+                                              @PathVariable String for_a, @PathVariable Long for_id,
+                                              @PathVariable Long se_id,
+                                              HttpServletRequest request) {
+        RedirectView redirectView = new RedirectView();
+        if (!(for_a.equals("group") || for_a.equals("teacher"))) {
+            redirectView.setUrl("http://localhost:8088/logged-in/err");
+            redirectView.setHosts();
+            return redirectView;
+        } else if (for_a.equals("group") && !groupRepo.findById(for_id).isPresent()) {
+            redirectView.setUrl("http://localhost:8088/logged-in/err");
+            redirectView.setHosts();
+            return redirectView;
+        } else if (for_a.equals("teacher") && !teacherRepo.findById(for_id).isPresent()) {
+            redirectView.setUrl("http://localhost:8088/logged-in/err");
+            redirectView.setHosts();
+            return redirectView;
+        }
+        String checkAuthResult = checkAuth(uid, request);
+        if (checkAuthResult.equals("**success**")) {
+            School school = userRepo.findById(uid).get().getSchool();
+            Optional<Semester> op_semester = semesterRepo.findById(sid);
+            if (op_semester.isPresent() &&
+                    op_semester.get().getSchool().equals(school)) {
+                Semester semester = op_semester.get();
+                if ((for_a.equals("group") && !groupRepo.findById(for_id).get().getSchool().equals(school)) ||
+                        (for_a.equals("teacher") && !teacherRepo.findById(for_id).get().getSchool().equals(school))) {
+                    redirectView.setUrl("http://localhost:8088/logged-in/err");
+                    redirectView.setHosts();
+                    return redirectView;
+                }
+                Optional<ScheduleEntry> se = scheduleRepo.findById(se_id);
+                if (se.isPresent() && se.get().getSemester().equals(semester)) {
+                    ScheduleEntry scheduleEntry = se.get();
+                    Gradebook gradebook = gradebookRepo.findBySemesterAndGroupAndCourse(semester, scheduleEntry.getGroup(), scheduleEntry.getCourse());
+                    if (gradebook != null) {
+                        //delete columns and information in them
+                        ArrayList<Assignment> assignments = new ArrayList<>(gradebook.getAssignments());
+                        for (Assignment a: assignments) {
+                            if (a.getDay().getRotationday().equals(scheduleEntry.getRotationDay()) &&
+                                    a.getTimeslot().equals(scheduleEntry.getTimeslot())) {
+                                if (a.getHomework() != null) {
+                                    if (a.getHomework().isHas_column()) {
+                                        Homework hw = a.getHomework();
+                                        Assignment c = hw.getColumn();
+                                        gradeRepo.deleteAll(c.getEntries());
+                                        hw.setColumn(null);
+                                        homeworkRepo.save(hw);
+                                        assignmentRepo.delete(c);
+                                    }
+                                    homeworkRepo.delete(a.getHomework());
+                                }
+                                gradeRepo.deleteAll(a.getEntries());
+                                assignmentRepo.delete(a);
+                            }
+                        }
+                        //check if the teacher still has access
+                        Teacher teacher = scheduleEntry.getTeacher();
+                        boolean has_access = false;
+                        ArrayList<ScheduleEntry> teacherSchedule = new ArrayList<>(scheduleRepo.findAllBySemesterAndTeacher(semester, teacher));
+                        for (ScheduleEntry seT: teacherSchedule) {
+                            if (seT.getGroup().equals(scheduleEntry.getGroup()) &&
+                                    seT.getCourse().equals(scheduleEntry.getCourse())) {
+                                has_access = true;
+                                break;
+                            }
+                        }
+                        if (!has_access) {
+                            teacher.removeGradebook(gradebook);
+                            teacherRepo.save(teacher);
+                        }
+                        ArrayList<ScheduleEntry> scheduleEntries = new ArrayList<>(scheduleRepo.findAllBySemesterAndGroupAndCourse(semester, scheduleEntry.getGroup(), scheduleEntry.getCourse()));
+                        if (scheduleEntries.isEmpty()) {
+                            ArrayList<Teacher> teachers = new ArrayList<>(gradebook.getTeachers());
+                            for (Teacher t: teachers) {
+                                if(t.getGradebooks().contains(gradebook)) {
+                                    t.removeGradebook(gradebook);
+                                    teacherRepo.save(t);
+                                }
+                            }
+                            gradebookRepo.delete(gradebook);
+                        }
+                    }
+                    scheduleRepo.delete(scheduleEntry);
+                    redirectView.setUrl("http://localhost:8088/logged-in/" + uid + "/semester/" + sid + "/schedule_for/" + for_a + "/" + for_id + "/edit");
+                } else {
+                    redirectView.setUrl("http://localhost:8088/logged-in/err");
+                }
+            } else {
+                redirectView.setUrl("http://localhost:8088/logged-in/err");
+            }
+        } else {
+            String url = "http://localhost:8088/" + checkAuthResult;
+            redirectView.setUrl(url);
+        }
+        redirectView.setHosts();
+        return redirectView;
+    }
+
+    @GetMapping("logged-in/{uid}/semester/{sid}/schedule_for/{for_a}/{for_id}/generate_columns")
+    @ResponseBody
+    public String generate_columns(@PathVariable Long uid, @PathVariable Long sid,
+                                   @PathVariable String for_a, @PathVariable Long for_id,
+                                   HttpServletRequest request) {
+        if (!(for_a.equals("group") || for_a.equals("teacher"))) {
+            return "Error";
+        } else if (for_a.equals("group") && !groupRepo.findById(for_id).isPresent()) {
+            return "Error";
+        } else if (for_a.equals("teacher") && !teacherRepo.findById(for_id).isPresent()) {
+            return "Error";
+        }
+        String checkAuthResult = checkAuth(uid, request);
+        if (checkAuthResult.equals("**success**")) {
+            Optional<Semester> op_semester = semesterRepo.findById(sid);
+            if (op_semester.isPresent() &&
+                    op_semester.get().getSchool().equals(userRepo.findById(uid).get().getSchool())) {
+                School school = userRepo.findById(uid).get().getSchool();
+                if ((for_a.equals("group") && !groupRepo.findById(for_id).get().getSchool().equals(school)) ||
+                        (for_a.equals("teacher") && !teacherRepo.findById(for_id).get().getSchool().equals(school))) {
+                    return "Error";
+                }
+                Semester semester = op_semester.get();
+                ArrayList<ScheduleEntry> schedule;
+                StudentGroup group = null;
+                Teacher teacher = null;
+                Course course = null;
+                if (for_a.equals("group")) {
+                    group = groupRepo.findById(for_id).get();
+                    schedule = new ArrayList<>(scheduleRepo.findAllBySemesterAndGroup(semester, group));
+                } else {
+                    teacher = teacherRepo.findById(for_id).get();
+                    schedule = new ArrayList<>(scheduleRepo.findAllBySemesterAndTeacher(semester, teacher));
+                }
+                HashMap<StudentGroup, HashMap<Course, Gradebook>> teacher_gradebooks = new HashMap<>();
+                HashMap<Course, Gradebook> group_gradebooks = new HashMap<>();
+                Gradebook gradebook;
+                for (ScheduleEntry se: schedule) {
+                    if (for_a.equals("group")) {
+                        teacher = se.getTeacher();
+                    } else {
+                        group = se.getGroup();
+                        if (teacher_gradebooks.containsKey(group)) {
+                            group_gradebooks = teacher_gradebooks.get(group);
+                        } else {
+                            teacher_gradebooks.put(group, new HashMap<>());
+                            group_gradebooks = teacher_gradebooks.get(group);
+                        }
+                    }
+                    course = se.getCourse();
+                    if (group_gradebooks.containsKey(course)) {
+                        gradebook = group_gradebooks.get(course);
+                    } else {
+                        gradebook = gradebookRepo.findBySemesterAndGroupAndCourse(se.getSemester(), group, course);
+                        if (gradebook == null) {
+                            String n = group.getName() + " " + course.getName();
+                            gradebook = new Gradebook(n, se.getSemester(), group, course);
+                            group_gradebooks.put(course, gradebook);
+                            gradebook = gradebookRepo.save(gradebook);
+                        }
+                    }
+                    if (!teacher.getGradebooks().contains(gradebook)) {
+                        teacher.addGradebook(gradebook);
+                        teacherRepo.save(teacher);
+                    }
+                    ArrayList<CalendarDay> days = new ArrayList<>(calendarRepo.findAllBySemesterAndRotationday(se.getSemester(), se.getRotationDay()));
+                    Timeslot t = se.getTimeslot();
+                    Assignment assignment;
+                    GradebookEntry entry;
+                    for (CalendarDay day: days) {
+                        assignment = assignmentRepo.findByGradebookAndAndDayAndTimeslot(gradebook, day, t);
+                        if (assignment == null) {
+                            LocalDate d = day.getDate().toLocalDate();
+                            String name = "Class " + d.getDayOfMonth() + "/" + d.getMonth().getValue() + "\n" + t.getName();
+                            assignment = new Assignment(name, gradebook, false, day, t);
+                            assignment = assignmentRepo.save(assignment);
+                        }
+                        for (Student s: group.getStudents()) {
+                            entry = gradeRepo.findByAssignmentAndStudent(assignment, s);
+                            if (entry == null) {
+                                entry = new GradebookEntry(gradebook, s, assignment);
+                            }
+                            if (!entry.isAttendance()) {
+                                entry.setAttendance(true);
+                                entry.setAttendanceValue(false);
+                            }
+                            gradeRepo.save(entry);
+                        }
+                    }
+                }
+                if (for_a.equals("group")) {
+                    teacher_gradebooks.put(group, group_gradebooks);
+                }
+                for (StudentGroup sg: teacher_gradebooks.keySet()) {
+                    for (Course c: teacher_gradebooks.get(sg).keySet()) {
+                        gradebookRepo.save(teacher_gradebooks.get(sg).get(c));
+                    }
+                }
+                return "Success!";
+            } else {
+                return "Error";
             }
         } else {
             return checkAuthResult;
@@ -744,6 +971,51 @@ public class AdminPagesController {
         return redirectView;
     }
 
+    @PostMapping("logged-in/{uid}/members/student/{sid}/edit_login")
+    @ResponseBody
+    public RedirectView student_edit_login(@PathVariable Long uid, @PathVariable Long sid,
+                                     @RequestParam String username, @RequestParam(required = false) String pswd,
+                                     HttpServletRequest request) {
+        RedirectView redirectView = new RedirectView();
+        String checkAuthResult = checkAuth(uid, request);
+        if (checkAuthResult.equals("**success**")) {
+            School school = userRepo.findById(uid).get().getSchool();
+            Optional<Student> st = studentRepo.findById(sid);
+            if (st.isPresent() && st.get().getSchool().equals(school)) {
+                TeacherbookUser student = st.get().getUser();
+                if (dataValidator.loginIsValid(username)) {
+                    String uname = username + "_" + school.getSchool_id();
+                    if (!student.getUsername().equals(uname)) {
+                        student.setUsername(uname);
+                    }
+                    if (pswd != null) {
+                        if (dataValidator.pswdIsValid(pswd)) {
+                            student.setPasshash(pswd);
+                            userService.saveUser(student);
+                        } else {
+                            redirectView.setUrl("http://localhost:8088/err");
+                            redirectView.setHosts();
+                            return redirectView;
+                        }
+                    } else {
+                        userRepo.save(student);
+                    }
+                    redirectView.setUrl("http://localhost:8088/logged-in/"+ uid +"/members/student/" + sid + "/student_info");
+                } else {
+                    redirectView.setUrl("http://localhost:8088/err");
+                }
+                redirectView.setUrl("http://localhost:8088/logged-in/"+ uid +"/members/student/" + sid + "/student_info");
+            } else {
+                redirectView.setUrl("http://localhost:8088/err");
+            }
+        } else {
+            String url = "http://localhost:8088/" + checkAuthResult;
+            redirectView.setUrl(url);
+        }
+        redirectView.setHosts();
+        return redirectView;
+    }
+
     @PostMapping("/logged-in/{uid}/semesters/create_semester")
     @ResponseBody
     public RedirectView new_semester(@PathVariable Long uid,
@@ -813,7 +1085,7 @@ public class AdminPagesController {
                 day = new CalendarDay(java.sql.Date.valueOf(date));
                 day.setSemester(newSemester);
                 if (working.contains(date.getDayOfWeek().toString())) {
-                    day.setRotation_day(rotation.get(rotation_ind));
+                    day.setRotationday(rotation.get(rotation_ind));
                     rotation_ind = rotation_ind+1 < newSemester.getRotation_length() ? rotation_ind+1 : 0;
                 }
                 calendarRepo.save(day);
@@ -978,10 +1250,8 @@ public class AdminPagesController {
                     student = studentRepo.findById(Long.parseLong(s));
                     if (student.isPresent() && student.get().getSchool().equals(school)) {
                         studentFound = student.get();
-                        if (studentFound.getSchool().equals(school)) {
-                            studentFound.addGroup(group);
-                            studentRepo.save(studentFound);
-                        }
+                        studentFound.addGroup(group);
+                        studentRepo.save(studentFound);
                     }
                 }
             }
@@ -1006,12 +1276,30 @@ public class AdminPagesController {
             Optional<StudentGroup> group = groupRepo.findById(gid);
             if (group.isPresent() && group.get().getSchool().equals(school)) {
                 StudentGroup groupFound = group.get();
+                java.sql.Date today = new java.sql.Date(System.currentTimeMillis());
+                ArrayList<Semester> semesters = new ArrayList<>(semesterRepo.findAllBySchoolAndEndDateAfter(school, today));
                 Optional<Student> student;
                 Student studentFound;
                 for (String s : students) {
                     student = studentRepo.findById(Long.parseLong(s));
                     if (student.isPresent() && student.get().getSchool().equals(school)) {
                         studentFound = student.get();
+                        ArrayList<StudentGroup> groups = new ArrayList<>(studentFound.getGroups());
+                        for (StudentGroup g: groups) {
+                            for (Semester sem: semesters) {
+                                ArrayList<ScheduleEntry> scheduleGroupFound = new ArrayList<>(scheduleRepo.findAllBySemesterAndGroup(sem, groupFound));
+                                ArrayList<ScheduleEntry> scheduleG = new ArrayList<>(scheduleRepo.findAllBySemesterAndGroup(sem, g));
+                                for (ScheduleEntry seG: scheduleG) {
+                                    for (ScheduleEntry seGF: scheduleGroupFound) {
+                                        if (seG.getRotationDay().equals(seGF.getRotationDay()) && seG.getTimeslot().equals(seGF.getTimeslot())) {
+                                            redirectView.setUrl("http://localhost:8088/err");
+                                            redirectView.setHosts();
+                                            return redirectView;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         if (studentFound.getSchool().equals(school)) {
                             studentFound.addGroup(groupFound);
                             studentRepo.save(studentFound);

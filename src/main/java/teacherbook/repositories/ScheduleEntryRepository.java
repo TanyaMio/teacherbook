@@ -1,6 +1,7 @@
 package teacherbook.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import teacherbook.model.Course;
 import teacherbook.model.StudentGroup;
 import teacherbook.model.schedulegrid.RotationDay;
 import teacherbook.model.schedulegrid.ScheduleEntry;
@@ -15,6 +16,9 @@ public interface ScheduleEntryRepository extends JpaRepository<ScheduleEntry, Lo
     public List<ScheduleEntry> findAllBySemesterAndTeacherAndRotationDay(Semester semester, Teacher teacher, RotationDay rotationDay);
     public ScheduleEntry findBySemesterAndTeacherAndRotationDayAndTimeslot(Semester semester, Teacher teacher, RotationDay rotationDay, Timeslot timeslot);
     public ScheduleEntry findBySemesterAndGroupAndRotationDayAndTimeslot(Semester semester, StudentGroup group, RotationDay rotationDay, Timeslot timeslot);
-    public List<ScheduleEntry> findAllByGroup(StudentGroup group);
+    public List<ScheduleEntry> findAllBySemesterAndGroup(Semester semester, StudentGroup group);
+    public List<ScheduleEntry> findAllBySemesterAndTeacher(Semester semester, Teacher teacher);
     public List<ScheduleEntry> findAllByTeacher(Teacher teacher);
+    public List<ScheduleEntry> findAllByGroup(StudentGroup group);
+    public List<ScheduleEntry> findAllBySemesterAndGroupAndCourse(Semester semester, StudentGroup group, Course course);
 }
