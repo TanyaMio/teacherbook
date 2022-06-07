@@ -5,11 +5,16 @@
     <title>Teacher Home</title>
 </head>
 <body>
-<div id="header">
-    <a class="btn" href="/logout" style="float: right">Log out</a>
+<div class="header">
+    <h2 class="logo">Teacherbook</h2>
+    <div class="header-right">
+        <a class="btn" href="/logout">Log out</a>
+    </div>
 </div>
-<a href="./teacher_info">Edit Personal Information</a>
-<br/>
+<h2 th:text="@{Welcome, {fname} {lname}!(fname=${teacher.first_name}, lname=${teacher.last_name})}" style="color: black; font-weight: bold; font-size: 35px; padding-left: 10px;"></h2>
+<div class="container-main">
+    <a href="./teacher_info">Edit Personal Information</a>
+</div>
 <input id="gradebookInput" type="text" name="gradebook_search" placeholder="Search Gradebooks">
 <div class = gradebooks th:each="gradebook: ${gradebooks}">
     <a th:href="@{./gradebook/{id}/edit(id=${gradebook.id})}" th:text="${gradebook.name}" th:id="${gradebook.id}"></a>
@@ -36,5 +41,92 @@
 
     filter(document.getElementById("gradebookInput"));
 </script>
+<style>
+    .header {
+        overflow: hidden;
+        background-color: #70ca86;
+        padding: 20px 10px;
+        border-radius: 20px;
+    }
+
+    .header a {
+        float: left;
+        color: black;
+        text-align: center;
+        padding: 12px;
+        text-decoration: none;
+        font-size: 18px;
+        line-height: 25px;
+        border-radius: 4px;
+    }
+
+    .logo {
+        color: aliceblue;
+        font-size: 45px;
+        font-weight: bold;
+        vertical-align: bottom;
+        display: inline;
+        margin-left: 30px;
+    }
+    .header a:hover {
+        background-color: #c1f1a4;
+        color: black;
+    }
+
+    .header-right {
+        float: right;
+    }
+
+    @media screen and (max-width: 500px) {
+        .header a {
+            float: none;
+            display: block;
+            text-align: left;
+        }
+        .header-right {
+            float: none;
+        }
+    }
+
+    .container-main a {
+        background-color: #c1f1a4;
+        color: black;
+        text-align: center;
+        padding: 12px;
+        text-decoration: none;
+        font-size: 18px;
+        line-height: 25px;
+        border-radius: 4px;
+    }
+
+    .container-main {
+        padding: 10px;
+        margin: 10px;
+    }
+
+    .gradebooks {
+        padding: 15px;
+    }
+    .gradebooks a {
+        color: black;
+        text-align: center;
+        padding: 12px;
+        text-decoration: none;
+        font-size: 18px;
+        line-height: 25px;
+        border-radius: 4px;
+        background-color: beige;
+    }
+
+    input[type=text] {
+        width: 300px;
+        padding: 12px 20px;
+        margin: 8px 20px;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+</style>
 </body>
 </html>

@@ -1,12 +1,14 @@
 package teacherbook.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
+import teacherbook.email.events.registration.OnRegistrationCompleteEvent;
 import teacherbook.model.Course;
 import teacherbook.model.StudentGroup;
 import teacherbook.model.gradebook.Assignment;
@@ -39,6 +41,9 @@ import java.util.*;
 
 @Controller
 public class AdminPagesController {
+
+    @Autowired
+    ApplicationEventPublisher eventPublisher;
 
     @Autowired
     private AppUserDetailsService userService;
@@ -80,9 +85,10 @@ public class AdminPagesController {
     private DataValidator dataValidator = new DataValidator();
 
     @GetMapping("logged-in/{uid}/admin_home")
-    public String admin_home(@PathVariable Long uid, HttpServletRequest request) {
+    public String admin_home(@PathVariable Long uid, Model model, HttpServletRequest request) {
         String checkAuthResult = checkAuth(uid, request);
         if (checkAuthResult.equals("**success**")) {
+            model.addAttribute("school", userRepo.findById(uid).get().getSchool());
             return "school_admin_home";
         } else {
             return checkAuthResult;
@@ -865,11 +871,16 @@ public class AdminPagesController {
         if (checkAuthResult.equals("**success**") &&
                 !email.isBlank() && !password.isBlank() && !name1.isBlank() && !name2.isBlank()) {
             TeacherbookUser userFound = userRepo.findById(uid).get();
-            if (dataValidator.emailIsValid(email)) {
+            if (dataValidator.emailIsValid(email) || dataValidator.loginIsValid(email)) {
                 TeacherbookUser existing = userService.findUserByEmail(email);
                 if (existing == null) {
-                    if (dataValidator.emailPswdIsValid(email, password)) {
-                        TeacherbookUser newUser = new TeacherbookUser(email, password, true);
+                    if (dataValidator.pswdIsValid(password)) {
+                        TeacherbookUser newUser;
+                        if (dataValidator.emailIsValid(email)) {
+                            newUser = new TeacherbookUser(email, password, false);
+                        } else {
+                            newUser = new TeacherbookUser(email, password, true);
+                        }
                         newUser.setRoles("*TEACHER*");
                         Teacher newTeacher = new Teacher(name1, name2);
                         newTeacher.setSchool(userFound.getSchool());
@@ -877,7 +888,7 @@ public class AdminPagesController {
                         newUser.setTeacher(newTeacher);
                         userService.saveUser(newUser);
                         String appUrl = request.getContextPath();
-                        //eventPublisher.publishEvent(new OnRegistrationCompleteEvent(newUser, request.getLocale(), appUrl));
+                        eventPublisher.publishEvent(new OnRegistrationCompleteEvent(newUser, request.getLocale(), appUrl));
                         redirectView.setUrl("http://localhost:8088/logged-in/" + uid + "/members/teachers");
                     } else {
                         redirectView.setUrl("http://localhost:8088/logged-in/" + uid + "/members/teachers?error");
@@ -1303,6 +1314,14 @@ public class AdminPagesController {
                         if (studentFound.getSchool().equals(school)) {
                             studentFound.addGroup(groupFound);
                             studentRepo.save(studentFound);
+                            ArrayList<Gradebook> gradebooks = new ArrayList<>(gradebookRepo.findAllByGroup(groupFound));
+                            GradebookEntry ge;
+                            for (Gradebook g: gradebooks) {
+                                for (Assignment a: g.getAssignments()) {
+                                    ge = new GradebookEntry(g, studentFound, a);
+                                    gradeRepo.save(ge);
+                                }
+                            }
                         }
                     }
                 }

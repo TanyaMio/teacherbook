@@ -5,80 +5,167 @@
     <title>Manage Courses</title>
 </head>
 <body>
-<div id="header">
-    <a class="btn" href="../admin_home">Home</a>
-    <a class="btn" href="/logout" style="float: right">Log out</a>
+<div class="header">
+    <h2 class="logo">Teacherbook</h2>
+    <div class="header-right">
+        <a class="btn" href="../admin_home">Home</a>
+        <a class="btn" href="/logout">Log out</a>
+    </div>
+</div>
+<h2 style="color: black; font-weight: bold; font-size: 35px; padding-left: 10px;">Course Management</h2>
+<div>
+    <form method="post">
+        <h3 style="font-weight: bold; padding: 0px 15px;">Add a new course:</h3>
+        <label for="new_name">Name:</label>
+        <input type="text" name="name" placeholder="Name" id="new_name" required/>
+        <label for="new_name">Credits:</label>
+        <input type="number" name="credits" placeholder="Credits" id="new_credits" value="0"/>
+        <input type="text" name="oldname" style="display: none"/>
+        <button type="f">Add Course</button>
+    </form>
 </div>
 <div class = courses_container>
+    <h3 style="padding: 15px;">Search Courses</h3>
     <input id="courseInput" type="text" name="course_search" placeholder="Search courses">
     <div class = courses th:each="course: ${courses}">
-        <p th:text="${course.name}" th:id="${course.id}"></p>
+        <h4 th:text="${course.name}" th:id="${course.id}"></h4>
         <p th:text="@{credits: {c}(c=${course.credits})}"></p>
         <button onclick="edit(this)">Edit</button>
     </div>
-    <div>
-        Add a new course:
-        <form method="post">
-            <label for="new_name">Name:</label>
-            <input type="text" name="name" placeholder="Name" id="new_name" required/>
-            <label for="new_name">Credits:</label>
-            <input type="number" name="credits" placeholder="Credits" id="new_credits" value="0"/>
-            <input type="text" name="oldname" hidden/>
-            <button type="f">Add Course</button>
-        </form>
-    </div>
-    <script th:inline="javascript">
-
-        function edit(e) {
-            e.setAttribute("hidden", "true");
-            var form = document.createElement("FORM");
-            form.setAttribute("method", "post");
-            var n = document.createElement("INPUT")
-            n.setAttribute("type", "text");
-            n.setAttribute("name", "name");
-            n.setAttribute("value", e.parentNode.firstElementChild.innerHTML);
-            n.setAttribute("placeholder", "New Name");
-            var c = document.createElement("INPUT");
-            c.setAttribute("type", "number");
-            c.setAttribute("name", "credits");
-            c.setAttribute("placeholder", "Credits");
-            c.setAttribute("value", "0");
-            var old = document.createElement("INPUT");
-            old.setAttribute("type", "text");
-            old.setAttribute("name", "oldname");
-            old.setAttribute("value", e.parentNode.firstElementChild.innerHTML);
-            old.setAttribute("hidden", "true");
-            var btn = document.createElement("BUTTON");
-            btn.setAttribute("type", "f");
-            btn.innerText = "Save";
-            form.append(n);
-            form.append(c);
-            form.append(old);
-            form.append(btn);
-            e.parentNode.append(form);
-        }
-
-        function filter(inp) {
-            inp.addEventListener("input", function (e) {
-                var val = this.value;
-                var list = document.getElementsByClassName("courses");
-                if (!val) {
-                    for (var i=0; i<list.length; i++) {
-                        list.item(i).firstElementChild.removeAttribute("hidden");
-                    }
-                }
-                for (var i=0; i<list.length; i++) {
-                    if (list.item(i).firstElementChild.innerHTML.substr(0, val.length).toUpperCase() != val.toUpperCase()) {
-                        list.item(i).setAttribute("hidden", "true");
-                    } else {
-                        list.item(i).removeAttribute("hidden");
-                    }
-                }
-            })
-        }
-
-        filter(document.getElementById("courseInput"));
-    </script>
 </div>
+<script th:inline="javascript">
+
+    function edit(e) {
+        e.style.display = "none";
+        e.parentNode.style.backgroundColor = "beige";
+        var form = document.createElement("FORM");
+        form.setAttribute("method", "post");
+        var n = document.createElement("INPUT")
+        n.setAttribute("type", "text");
+        n.setAttribute("name", "name");
+        n.setAttribute("value", e.parentNode.firstElementChild.innerHTML);
+        n.setAttribute("placeholder", "New Name");
+        var c = document.createElement("INPUT");
+        c.setAttribute("type", "number");
+        c.setAttribute("name", "credits");
+        c.setAttribute("placeholder", "Credits");
+        c.setAttribute("value", "0");
+        var old = document.createElement("INPUT");
+        old.setAttribute("type", "text");
+        old.setAttribute("name", "oldname");
+        old.setAttribute("value", e.parentNode.firstElementChild.innerHTML);
+        old.style.display = "none";
+        var btn = document.createElement("BUTTON");
+        btn.setAttribute("type", "f");
+        btn.innerText = "Save";
+        form.append(n);
+        form.append(c);
+        form.append(old);
+        form.append(btn);
+        e.parentNode.append(form);
+    }
+
+    function filter(inp) {
+        inp.addEventListener("input", function (e) {
+            var val = this.value;
+            var list = document.getElementsByClassName("courses");
+            if (!val) {
+                for (var i=0; i<list.length; i++) {
+                    list.item(i).firstElementChild.removeAttribute("hidden");
+                }
+            }
+            for (var i=0; i<list.length; i++) {
+                if (list.item(i).firstElementChild.innerHTML.substr(0, val.length).toUpperCase() != val.toUpperCase()) {
+                    list.item(i).setAttribute("hidden", "true");
+                } else {
+                    list.item(i).removeAttribute("hidden");
+                }
+            }
+        })
+    }
+
+    filter(document.getElementById("courseInput"));
+</script>
+<style>
+    .header {
+        overflow: hidden;
+        background-color: #70ca86;
+        padding: 20px 10px;
+        border-radius: 20px;
+    }
+
+    .header a {
+        float: left;
+        color: black;
+        text-align: center;
+        padding: 12px;
+        text-decoration: none;
+        font-size: 18px;
+        line-height: 25px;
+        border-radius: 4px;
+    }
+
+    .logo {
+        color: aliceblue;
+        font-size: 45px;
+        font-weight: bold;
+        vertical-align: bottom;
+        display: inline;
+        margin-left: 30px;
+    }
+    .header a:hover {
+        background-color: #c1f1a4;
+        color: black;
+    }
+
+    .header-right {
+        float: right;
+    }
+
+    @media screen and (max-width: 500px) {
+        .header a {
+            float: none;
+            display: block;
+            text-align: left;
+        }
+        .header-right {
+            float: none;
+        }
+    }
+
+    input[type=text], input[type=password], input[type=number] {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    button {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+    }
+
+    form {
+        padding: 15px;
+        background-color: beige;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    .redbtn {
+        background-color: #AF554C;
+    }
+</style>
 </body>
 </html>

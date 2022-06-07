@@ -1,34 +1,28 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Log In</title>
+    <title>Set New Passport</title>
 </head>
 <body>
 <div class="header">
     <h2 class="logo">Teacherbook</h2>
 </div>
 <div class="u_form HcenterContainer">
-    <h2 style="color: black; font-weight: bold; font-size: 35px;">Log In</h2>
-    <form method="post">
-        <label class="form_el" for="username"><b>Username or e-mail</b></label>
-        <br/>
-        <input class="form_el" type="text" placeholder="Enter username or e-mail" name="username" id="username" required/>
-        <br/>
-        <label class="form_el" for="psw"><b>Password</b></label>
-        <br/>
+    <h2 style="color: black; font-weight: bold; font-size: 35px;">Password Reset</h2>
+    <p>Fill in the fields to set a new password.</p>
+    <form action="#" method="post">
+        <label class="form_el" for="psw"><b>New Password</b></label>
+        <br>
         <input class="form_el" type="password" placeholder="Enter Password" name="password" id="psw" required/>
-        <br/>
+        <br>
+        <label class="form_el" for="psw-repeat"><b>Repeat New Password</b></label>
+        <br>
+        <input class="form_el" type="password" placeholder="Repeat Password" name="psw-repeat" id="psw-repeat" required/>
         <div class="HcenterContainer">
-            <button id="login_btn" type="f">Log in</button>
+            <button type="submit" class="registerbtn" id="reset_btn">Set Password</button>
         </div>
     </form>
-    <div class="HcenterContainer">
-        <p>Forgot your password? <a href="/pswd_reset">Reset Password</a>.</p>
-    </div>
-    <div class="HcenterContainer">
-        <p>Don't have an account? <a href="/register">Register</a>.</p>
-    </div>
 </div>
 <style>
     .header {
@@ -46,11 +40,10 @@
         display: inline;
         margin-left: 30px;
     }
-
     .u_form {
         width: fit-content;
         background-color: beige;
-        padding: 5px 20px 5px 20px;
+        padding: 5px 20px 20px 20px;
         border-radius: 40px;
     }
 
@@ -64,7 +57,7 @@
         margin-bottom: 10px;
     }
 
-    input[type=text], input[type=password] {
+    input[type=password] {
         width: 100%;
         padding: 12px 20px;
         margin: 8px 0;

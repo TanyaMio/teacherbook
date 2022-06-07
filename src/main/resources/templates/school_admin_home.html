@@ -1,17 +1,77 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>Admin Home</title>
 </head>
 <body>
-<div id="header">
-    <a class="btn" href="/logout" style="float: right">Log out</a>
+<div class="header">
+    <h2 class="logo">Teacherbook</h2>
+    <div class="header-right">
+        <a class="btn" href="/logout" style="float: right">Log out</a>
+    </div>
 </div>
-<p><a href="semesters/list">Manage Semesters</a></p>
-<p><a href="courses/list">Manage Courses</a></p>
-<p><a href="members/teachers">Manage Teachers</a></p>
-<p><a href="members/students">Manage Students</a></p>
-<p><a href="groups/list">Manage Student Groups</a></p>
+<div class="container-main">
+    <h2 th:text="${school.name}" style="color: black; font-weight: bold; font-size: 35px; padding: 15px;"></h2>
+    <p><a href="semesters/list">Manage Semesters</a></p>
+    <p><a href="courses/list">Manage Courses</a></p>
+    <p><a href="members/teachers">Manage Teachers</a></p>
+    <p><a href="members/students">Manage Students</a></p>
+    <p><a href="groups/list">Manage Student Groups</a></p>
+</div>
+<style>
+    .header {
+        overflow: hidden;
+        background-color: #70ca86;
+        padding: 20px 10px;
+        border-radius: 20px;
+    }
+
+    a {
+        color: black;
+        text-align: center;
+        padding: 12px;
+        text-decoration: none;
+        font-size: 18px;
+        line-height: 25px;
+        border-radius: 4px;
+    }
+
+    .container-main a {
+        background-color: #c1f1a4;
+    }
+
+    p {
+        padding: 15px;
+    }
+
+    .logo {
+        color: aliceblue;
+        font-size: 45px;
+        font-weight: bold;
+        vertical-align: bottom;
+        display: inline;
+        margin-left: 30px;
+    }
+    .header a:hover {
+        background-color: #c1f1a4;
+        color: black;
+    }
+
+    .header-right {
+        float: right;
+    }
+
+    @media screen and (max-width: 500px) {
+        .header a {
+            float: none;
+            display: block;
+            text-align: left;
+        }
+        .header-right {
+            float: none;
+        }
+    }
+</style>
 </body>
 </html>

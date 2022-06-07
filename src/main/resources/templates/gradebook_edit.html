@@ -5,40 +5,42 @@
     <title>Gradebook Edit</title>
 </head>
 <body>
-<div id="header">
-    <a class="btn" href="../../teacher_home">Home</a>
-    <a class="btn" href="/logout" style="float: right">Log out</a>
+<div class="header">
+    <h2 class="logo">Teacherbook</h2>
+    <div class="header-right">
+        <a class="btn" href="../../teacher_home">Home</a>
+        <a class="btn" href="/logout">Log out</a>
+    </div>
 </div>
 <h2 th:text="${gradebook.name}"></h2>
-<div id="grade_form" style="height: 100vh; width: 100%; background-color: rgb(59,60,113); display: none;">
+<div class="fullscreen_form" id="grade_form">
     <a href="javascript:void(0)" class="closebtn" onclick="closeForm()" style="float: right;">&times;</a>
     <div style="width: fit-content; margin: auto">
-        <strong id="assignment_name"></strong>
-        <br/>
-        <strong id="student_name"></strong>
+        <h3 id="assignment_name"></h3>
+        <h3 id="student_name"></h3>
     </div>
-    <form method="post" style="width: fit-content; margin: auto" autocomplete="off">
-        <input hidden type="number" id="entry" name="entry" required/>
+    <form method="post" autocomplete="off">
+        <input style="display: none" type="number" id="entry" name="entry" required/>
         <label for="grade">Grade: </label>
         <input type="number" min="0" max="100" id="grade" name="grade" placeholder="Enter grade from 0 to 100" required/>
         <br/>
         <label for="note">Leave a note for the student:</label>
         <br/>
         <input type="text" id="note" name="note"/>
-        <br/>
-        <button type="f">Save</button>
+        <div class="HcenterContainer">
+            <button type="f">Save</button>
+        </div>
     </form>
 </div>
-<div id="homework_form" style="height: 100vh; width: 100%; background-color: rgba(0, 0, 150, 0.5); display: none;">
+<div class="fullscreen_form" id="homework_form">
     <a href="javascript:void(0)" class="closebtn" onclick="closeHW()" style="float: right;">&times;</a>
     <div style="width: fit-content; margin: auto">
-        <strong>Homework for</strong>
-        <br/>
-        <strong id="assignment"></strong>
+        <h3>Homework for</h3>
+        <h3 id="assignment"></h3>
     </div>
-    <form method="post" action="./homework" style="width: fit-content; margin: auto" autocomplete="off">
-        <input hidden type="number" id="a_id" name="a_id" required/>
-        <input hidden type="number" id="hw_id" name="hw_id"/>
+    <form method="post" action="./homework" autocomplete="off">
+        <input style="display: none" type="number" id="a_id" name="a_id" required/>
+        <input style="display: none" type="number" id="hw_id" name="hw_id"/>
         <label for="hw">Homework: </label>
         <input type="text" id="hw" name="hw_content" placeholder="Enter homework tasks" required/>
         <br/>
@@ -46,33 +48,38 @@
         <input type="date" id="duedate" name="duedate" required/>
         <br/>
         <input type="checkbox" id="hascolumn" name="hascolumn" onchange="columnName(this)" value="false"/>
-        <label for="hascolumn">Separate column in the gradebook</label>
+        <label for="hascolumn" style="font-weight: normal">Separate column in the gradebook</label>
         <br/>
-        <div hidden id="column">
+        <div style="display: none; padding: 10px;" id="column">
             <label for="cname">Column Name:</label>
             <br/>
             <input type="text" id="cname" name="cname"/>
         </div>
-        <button id="del_hw" type="button" onclick="delete_hw()" hidden>Delete Homework</button>
-        <button id="hw_btn" type="f">Save</button>
+        <div class="HcenterContainer">
+            <button id="del_hw" class="redbtn" type="button" onclick="delete_hw()" style="display: none">Delete Homework</button>
+            <button id="hw_btn" type="f">Save</button>
+        </div>
     </form>
 </div>
-<div id="column_form" style="height: 100vh; width: 100%; background-color: rgba(0, 0, 150, 0.5); display: none;">
+<div class="fullscreen_form" id="column_form">
     <a href="javascript:void(0)" class="closebtn" onclick="closeColumn()" style="float: right;">&times;</a>
     <div style="width: fit-content; margin: auto">
-        <strong>New Column</strong>
+        <h3 id="col_title">New Column</h3>
     </div>
-    <form method="post" action="./new_column" style="width: fit-content; margin: auto" autocomplete="off">
+    <form method="post" action="./edit_column" autocomplete="off">
+        <input type="number" id="col_id" name="col_id" style="display: none"/>
         <label for="col_name">Name: </label>
         <input type="text" id="col_name" name="col_name" placeholder="Enter column name" required/>
-        <br/>
-        <label for="date">Date:</label>
-        <input type="date" id="date" name="date" required/>
-        <br/>
-        <input type="checkbox" id="att", name="att"/>
-        <label for="att">Include Attendance</label>
-        <br/>
-        <button id="col_btn" type="f">Save</button>
+        <div id="new_column_fields">
+            <label for="date">Date:</label>
+            <input type="date" id="date" name="date"/>
+            <br/>
+            <input type="checkbox" id="att" name="att"/>
+            <label for="att" style="font-weight: normal">Include Attendance</label>
+        </div>
+        <div class="HcenterContainer">
+            <button id="col_btn" type="f">Save</button>
+        </div>
     </form>
 </div>
 <div id="gradebook_view">
@@ -86,22 +93,23 @@
                         <p th:text="${el?.homework?.duedate}"></p>
                         <p th:if="${el?.homework?.has_column == true}" th:text="${el?.homework?.column?.name}"></p>
                     </div>
-                    <div th:unless="${el.isHomework == true}" style="height: 30px;" onmouseenter="this.firstElementChild.removeAttribute('hidden')" onmouseleave="this.firstElementChild.setAttribute('hidden','true')">
-                        <button hidden onclick="homeworkForm(this.parentNode)" type="button">Homework</button>
+                    <div th:unless="${el.isHomework == true}" style="height: 30px;" onmouseenter="this.firstElementChild.style.display='block'" onmouseleave="this.firstElementChild.style.display='none'">
+                        <button class="smallbtn" style="display: none" onclick="homeworkForm(this.parentNode)" type="button">Homework</button>
                     </div>
-                    <button type="button" onclick="delete_column(this.parentNode)">&times;</button>
-                    <button type="button" onclick="edit_column(this.parentNode)">&#x1F4DD;</button>
+                    <button class="redbtn smallbtn" type="button" onclick="delete_column(this.parentNode)">&times;</button>
+                    <button class="smallbtn" type="button" onclick="edit_column(this.parentNode)">&#x1F4DD;</button>
                 </div>
                 <div th:if="${el?.class?.name == 'teacherbook.model.gradebook.GradebookEntry'}" th:id="@{GE-{id}(id=${el.id})}">
-                    <input hidden type="text" th:value="${el.note}" name="nt"/>
+                    <input style="display: none" type="text" th:value="${el.note}" name="nt"/>
+                    <input style="display: none" type="text" th:value="${el.assignment.name}">
                     <input th:if="${el.attendance == true AND el.attendanceValue == true}" type="checkbox" onchange="attendanceChange(this)" checked/>
                     <input th:if="${el.attendance == true AND el.attendanceValue == false}" type="checkbox" onchange="attendanceChange(this)"/>
                     <p th:text="${el.grade}"></p>
-                    <div style="height: 30px;" onmouseenter="this.firstElementChild.removeAttribute('hidden')" onmouseleave="this.firstElementChild.setAttribute('hidden','true')">
-                        <button hidden onclick="openForm(this.parentNode)" type="button">Edit</button>
+                    <div style="height: 30px;" onmouseenter="this.firstElementChild.style.display='block'" onmouseleave="this.firstElementChild.style.display='none'">
+                        <button style="display: none" class="smallbtn" onclick="openForm(this.parentNode)" type="button">Edit</button>
                     </div>
                 </div>
-                <p style="white-space: pre-line" th:unless="${el?.class?.name == 'teacherbook.model.gradebook.GradebookEntry' OR el?.class?.name == 'teacherbook.model.gradebook.Assignment'}" th:text="${el}" onclick="colorChange(this)"></p>
+                <p style="white-space: pre-line" th:unless="${el?.class?.name == 'teacherbook.model.gradebook.GradebookEntry' OR el?.class?.name == 'teacherbook.model.gradebook.Assignment'}" th:text="${el}"></p>
             </td>
             <td class="add_column">
                 <p></p>
@@ -109,12 +117,6 @@
         </tr>
     </table>
 </div>
-<style>
-    td {
-        border: 1px solid black;
-    }
-</style>
-
 <script th:inline="javascript">
 
     function delete_hw() {
@@ -137,15 +139,6 @@
         }
     }
 
-    function colorChange(e) {
-        var tr = e.parentNode.parentNode;
-        if (tr.style.backgroundColor !== 'rgb(99, 170, 199)') {
-            tr.style.backgroundColor = 'rgb(99, 170, 199)';
-        } else {
-            tr.style.backgroundColor = 'rgb(255, 255, 255)';
-        }
-    }
-
     function attendanceChange(e) {
         var xmlHttp = new XMLHttpRequest();
         var ge = e.parentNode.getAttribute("id");
@@ -165,6 +158,8 @@
         document.getElementById("entry").setAttribute("value", id_str.substr(id_str.lastIndexOf("-")+1));
         document.getElementById("note").setAttribute("value", e.parentNode.firstElementChild.getAttribute("value"));
         document.getElementById("grade").setAttribute("value", e.parentNode.children.item(2).innerText);
+        document.getElementById("assignment_name").innerText = e.parentNode.children.item(1).getAttribute("value");
+        document.getElementById("student_name").innerText = e.parentNode.parentNode.parentNode.firstElementChild.firstElementChild.innerText;
     }
 
     function closeForm() {
@@ -233,6 +228,20 @@
     function addColumn() {
         document.getElementById("column_form").style.display='block';
         document.getElementById("gradebook_view").style.display='none';
+        document.getElementById("col_title").innerText = 'New Column';
+        document.getElementById("new_column_fields").display='block';
+    }
+
+    function edit_column(e) {
+        document.getElementById("column_form").style.display='block';
+        document.getElementById("gradebook_view").style.display='none';
+        document.getElementById("col_title").innerText = 'Edit Column';
+        document.getElementById("new_column_fields").style.display='none';
+        document.getElementById("col_name").setAttribute("value", e.firstElementChild.innerText);
+        var assignment = e.getAttribute("id");
+        var assignment_id = assignment.substr(assignment.lastIndexOf("-")+1);
+        document.getElementById("col_id").setAttribute("value", assignment_id);
+
     }
 
     function closeColumn() {
@@ -240,6 +249,8 @@
         document.getElementById("gradebook_view").style.display='block';
         document.getElementById("col_name").setAttribute("value", "");
         document.getElementById("date").setAttribute("value", "");
+        document.getElementById("att").checked = false;
+        document.getElementById("col_id").setAttribute("value", "");
     }
 
     var extra_column = document.getElementsByClassName("add_column");
@@ -248,6 +259,140 @@
     add_btn.setAttribute("onclick", "addColumn()");
     extra_column.item(0).append(add_btn);
 
+    var t = document.getElementsByTagName("tbody");
+    for (var i=0; i<t.length; i++) {
+        t.item(i).firstElementChild.style.backgroundColor = "#c1f1a4";
+    }
+
 </script>
+<style>
+    .header {
+        overflow: hidden;
+        background-color: #70ca86;
+        padding: 20px 10px;
+        border-radius: 20px;
+    }
+
+    .header a {
+        float: left;
+        color: black;
+        text-align: center;
+        padding: 12px;
+        text-decoration: none;
+        font-size: 18px;
+        line-height: 25px;
+        border-radius: 4px;
+    }
+
+    .logo {
+        color: aliceblue;
+        font-size: 45px;
+        font-weight: bold;
+        vertical-align: bottom;
+        display: inline;
+        margin-left: 30px;
+    }
+    .header a:hover {
+        background-color: #c1f1a4;
+        color: black;
+    }
+
+    .header-right {
+        float: right;
+    }
+
+    @media screen and (max-width: 500px) {
+        .header a {
+            float: none;
+            display: block;
+            text-align: left;
+        }
+        .header-right {
+            float: none;
+        }
+    }
+
+    .fullscreen_form {
+        height: 100%;
+        width: 100%;
+        background-color: #c3f4bc;
+        display: none;
+        padding: 10px;
+    }
+
+    .closebtn {
+        float: right;
+        text-decoration: none;
+        color: black;
+        font-size: 30px;
+    }
+
+    form {
+        padding: 15px;
+        background-color: beige;
+        border-radius: 10px;
+        width: fit-content;
+        margin: auto;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    .redbtn {
+        background-color: #AF554C;
+        color: white;
+        text-decoration: none;
+    }
+
+    .smallbtn {
+        padding: 5px;
+    }
+
+    input[type=text], input[type=date], input[type=number] {
+        width: 300px;
+        padding: 12px 20px;
+        margin: 8px 20px;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    button {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+    }
+
+    table {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    td {
+        border: 1px solid black;
+        padding: 8px;
+    }
+
+    tr:hover {
+        background-color: beige;
+    }
+
+    input[type=checkbox] {
+        width: 20px;
+        height: 20px;
+    }
+
+    .HcenterContainer {
+        width: fit-content;
+        margin: 20px auto auto auto;
+    }
+</style>
 </body>
 </html>

@@ -74,6 +74,7 @@ public class TeacherPageController {
                     currgradebooks.add(g);
                 }
             }
+            model.addAttribute("teacher", teacher);
             model.addAttribute("gradebooks", currgradebooks);
             return "teacher_home";
         } else {
@@ -450,15 +451,16 @@ public class TeacherPageController {
     }
 
 
-    @PostMapping("logged-in/{uid}/gradebook/{gb_id}/new_column")
+    @PostMapping("logged-in/{uid}/gradebook/{gb_id}/edit_column")
     @ResponseBody
-    public RedirectView addColumn(@PathVariable Long uid, @PathVariable Long gb_id,
+    public RedirectView editColumn(@PathVariable Long uid, @PathVariable Long gb_id,
+                                 @RequestParam(required = false) Long col_id,
                                  @RequestParam String col_name,
-                                 @RequestParam String date,
+                                 @RequestParam(required = false) String date,
                                  @RequestParam(required = false) Boolean att,
                                  HttpServletRequest request) {
         RedirectView redirectView = new RedirectView();
-        if (col_name.isBlank() || date.isBlank()) {
+        if (col_name.isBlank() || (col_id == null && (date == null || date.isBlank()) )) {
             redirectView.setUrl("http://localhost:8088/err");
             redirectView.setHosts();
             return redirectView;
@@ -472,24 +474,47 @@ public class TeacherPageController {
             if (g.isPresent() && teacher.getGradebooks().contains(g.get()) &&
                     semesters.contains(g.get().getSemester())) {
                 Gradebook gradebook = g.get();
-                CalendarDay day = calendarRepo.findBySemesterAndDate(gradebook.getSemester(), Date.valueOf(date));
-                if (day == null) {
-                    day = new CalendarDay(Date.valueOf(date));
-                    day = calendarRepo.save(day);
-                }
-                Assignment column = new Assignment(col_name, gradebook, true, day, null);
-                if (att == null) {
-                    att = false;
-                }
-                column = assignmentRepo.save(column);
-                GradebookEntry entry;
-                for(Student s: gradebook.getGroup().getStudents()) {
-                    entry = new GradebookEntry(gradebook, s, column);
-                    entry.setAttendance(att);
-                    if (att) {
-                        entry.setAttendanceValue(false);
+                if (col_id == null) {
+                    Semester semester = gradebook.getSemester();
+                    if (semester.getStartDate().compareTo(Date.valueOf(date)) <= 0 &&
+                            semester.getEndDate().compareTo(Date.valueOf(date)) >= 0) {
+                        CalendarDay day = calendarRepo.findBySemesterAndDate(gradebook.getSemester(), Date.valueOf(date));
+                        if (day == null) {
+                            day = new CalendarDay(Date.valueOf(date));
+                            day = calendarRepo.save(day);
+                        }
+                        Assignment column = new Assignment(col_name, gradebook, true, day, null);
+                        if (att == null) {
+                            att = false;
+                        }
+                        column = assignmentRepo.save(column);
+                        GradebookEntry entry;
+                        for(Student s: gradebook.getGroup().getStudents()) {
+                            entry = new GradebookEntry(gradebook, s, column);
+                            entry.setAttendance(att);
+                            if (att) {
+                                entry.setAttendanceValue(false);
+                            }
+                            gradeRepo.save(entry);
+                        }
+                    } else {
+                        redirectView.setUrl("http://localhost:8088/err");
+                        redirectView.setHosts();
+                        return redirectView;
                     }
-                    gradeRepo.save(entry);
+                } else {
+                    Optional<Assignment> c = assignmentRepo.findById(col_id);
+                    if (c.isPresent() && c.get().getGradebook().equals(gradebook)) {
+                        Assignment column = c.get();
+                        if (!column.getName().equals(col_name)) {
+                            column.setName(col_name);
+                            assignmentRepo.save(column);
+                        }
+                    } else {
+                        redirectView.setUrl("http://localhost:8088/err");
+                        redirectView.setHosts();
+                        return redirectView;
+                    }
                 }
                 redirectView.setUrl("http://localhost:8088/logged-in/" + uid + "/gradebook/" + gb_id + "/edit");
             } else {

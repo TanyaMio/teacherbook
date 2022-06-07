@@ -5,20 +5,24 @@
     <title>Student Information</title>
 </head>
 <body>
-<div id="header">
-    <a class="btn" href="../../../admin_home">Home</a>
-    <a class="btn" href="/logout" style="float: right">Log out</a>
+<div class="header">
+    <h2 class="logo">Teacherbook</h2>
+    <div class="header-right">
+        <a class="btn" href="../../../admin_home">Home</a>
+        <a class="btn" href="/logout">Log out</a>
+    </div>
 </div>
-<h2 th:text="${student.fullname}"></h2>
+<h2 style="color: black; font-weight: bold; font-size: 35px; padding-left: 10px;">Student Information</h2>
+<h3 style="color: black; font-weight: bold; font-size: 25px; padding-left: 10px;" th:text="${student.fullname}"></h3>
 <p th:text="@{Username: {uname}(uname=${student.user.username})}" id="uname"></p>
 <div>
     <button onclick="edit(this)">Edit Student Information</button>
     <button onclick="edit_login(this)">Edit Log In Information</button>
-    <button onclick="delete_confirm()">Delete Student Account</button>
+    <button class="redbtn" onclick="delete_confirm()">Delete Student Account</button>
 </div>
 <div>
-    <p>Groups:</p>
-    <div th:each="group: ${student.groups}">
+    <h3>Groups:</h3>
+    <div class="groups" th:each="group: ${student.groups}">
         <span th:text="${group.name}"></span>
         <a th:href="@{./remove_from/{id}(id=${group.id})}">[Remove from group]</a>
     </div>
@@ -27,7 +31,7 @@
 <script th:inline="javascript">
 
     function edit_login(e) {
-        e.hidden = true;
+        e.style.display = "none";
         document.getElementById("uname").hidden = true;
         var f = document.createElement("FORM");
         f.setAttribute("method", "post");
@@ -74,7 +78,7 @@
     }
 
     function edit(e) {
-        e.hidden = true;
+        e.style.display = "none";
         var f = document.createElement("FORM");
         f.setAttribute("method", "post");
         f.setAttribute("action", "./edit_info");
@@ -115,6 +119,103 @@
         }
     }
 </script>
+<style>
+    .header {
+        overflow: hidden;
+        background-color: #70ca86;
+        padding: 20px 10px;
+        border-radius: 20px;
+    }
 
+    .header a {
+        float: left;
+        color: black;
+        text-align: center;
+        padding: 12px;
+        text-decoration: none;
+        font-size: 18px;
+        line-height: 25px;
+        border-radius: 4px;
+    }
+
+    .logo {
+        color: aliceblue;
+        font-size: 45px;
+        font-weight: bold;
+        vertical-align: bottom;
+        display: inline;
+        margin-left: 30px;
+    }
+    .header a:hover {
+        background-color: #c1f1a4;
+        color: black;
+    }
+
+    .header-right {
+        float: right;
+    }
+
+    @media screen and (max-width: 500px) {
+        .header a {
+            float: none;
+            display: block;
+            text-align: left;
+        }
+        .header-right {
+            float: none;
+        }
+    }
+
+    input[type=text], input[type=password] {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    button {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+    }
+
+    .groups {
+        padding: 15px;
+        background-color: beige;
+    }
+
+    .groups a {
+        color: white;
+        text-align: center;
+        padding: 12px;
+        text-decoration: none;
+        font-size: 15px;
+        line-height: 25px;
+        border-radius: 4px;
+        background-color: #AF554C;
+    }
+
+    form {
+        padding: 15px;
+        background-color: beige;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    .redbtn {
+        background-color: #AF554C;
+    }
+
+</style>
 </body>
 </html>

@@ -5,17 +5,93 @@
     <title>Manage Semesters</title>
 </head>
 <body>
-<div id="header">
-    <a class="btn" href="../admin_home">Home</a>
-    <a class="btn" href="/logout" style="float: right">Log out</a>
+<div class="header">
+    <h2 class="logo">Teacherbook</h2>
+    <div class="header-right">
+        <a class="btn" href="../admin_home">Home</a>
+        <a class="btn" href="/logout">Log out</a>
+    </div>
+</div>
+<h2 style="color: black; font-weight: bold; font-size: 35px; padding-left: 10px;">Semesters Management</h2>
+<div class="container-main" style="padding: 25px;">
+    <a href="./create_semester">Set up a new semester</a></div>
 </div>
 <div class = semesters_container>
+    <h3 style="color: black; font-weight: bold; font-size: 25px; padding-left: 10px;">Semesters:</h3>
     <div class = semesters th:each="semester: ${semesters}">
         <a th:href="@{../semester/{id}/calendar(id=${semester.id})}" th:text="${semester.name}" th:id="${semester.id}"><br></a>
     </div>
 </div>
-<div>
-    <a href="./create_semester">Set up a new semester</a></div>
-</div>
+<style>
+    .header {
+        overflow: hidden;
+        background-color: #70ca86;
+        padding: 20px 10px;
+        border-radius: 20px;
+    }
+
+    .header a {
+        float: left;
+        color: black;
+        text-align: center;
+        padding: 12px;
+        text-decoration: none;
+        font-size: 18px;
+        line-height: 25px;
+        border-radius: 4px;
+    }
+
+    .logo {
+        color: aliceblue;
+        font-size: 45px;
+        font-weight: bold;
+        vertical-align: bottom;
+        display: inline;
+        margin-left: 30px;
+    }
+    .header a:hover {
+        background-color: #c1f1a4;
+        color: black;
+    }
+
+    .header-right {
+        float: right;
+    }
+
+    @media screen and (max-width: 500px) {
+        .header a {
+            float: none;
+            display: block;
+            text-align: left;
+        }
+        .header-right {
+            float: none;
+        }
+    }
+
+    .container-main a {
+        background-color: #c1f1a4;
+        color: black;
+        text-decoration: none;
+        padding: 10px;
+        border-radius: 4px;
+    }
+
+    .semesters {
+        padding: 10px;
+        margin: 10px;
+    }
+
+    .semesters a {
+        color: black;
+        text-align: center;
+        padding: 12px;
+        text-decoration: none;
+        font-size: 18px;
+        line-height: 25px;
+        border-radius: 4px;
+        background-color: beige;
+    }
+</style>
 </body>
 </html>

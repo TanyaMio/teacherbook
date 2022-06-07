@@ -5,64 +5,170 @@
     <title>Set up a new semester</title>
 </head>
 <body>
-<div id="header">
-    <a class="btn" href="../admin_home">Home</a>
-    <a class="btn" href="/logout" style="float: right">Log out</a>
+<div class="header">
+    <h2 class="logo">Teacherbook</h2>
+    <div class="header-right">
+        <a class="btn" href="../admin_home">Home</a>
+        <a class="btn" href="/logout">Log out</a>
+    </div>
 </div>
-<form method="post">
-    <p>
+<div class="u_form HcenterContainer">
+    <h2 style="color: black; font-weight: bold; font-size: 35px;">Create Semester</h2>
+    <form method="post">
         <label for="name"><b>Semester name</b></label>
         <input type="text" placeholder="Enter the name of the semester" name="name" id="name" required/>
-    </p>
-    <p>
         <label for="start_date">Semester start date</label>
-        <input type="date" id="start_date" name="start_date"
-               min="2022-01-01" required>
+        <input type="date" id="start_date" name="start_date" min="2022-01-01" required>
+        <br>
         <label for="end_date">Semester end date</label>
-        <input type="date" id="end_date" name="end_date"
-               min="2022-01-01" required>
-    </p>
-    <p>
+        <input type="date" id="end_date" name="end_date" min="2022-01-01" required>
+        <br>
         <label for="rotation_len"><b>Rotation length</b></label>
         <input type="number" placeholder="Rotation length" name="rotation_len" id="rotation_len" required>
-        <p>Rotation length describes how many unique days there are in your school's schedule. If you have the same schedule every day - enter 1. If you have 5 different schedules Mon-Fri, that repeat each week - enter 5, etc.</p>
-    </p>
-    <p>
+        <p>Rotation length describes how many unique days there are in your school's schedule.</p>
+        <p>If you have the same schedule every day - enter 1.</p>
+        <p>If you have 5 different schedules Mon-Fri, that repeat each week - enter 5, etc.</p>
         <label for="n_timeslots">Please, enter the maximum number of timeslots in one day</label>
         <input type="number" placeholder="Number of timeslots" name="n_timeslots" id="n_timeslots" required/>
-    </p>
-    <legend>Choose all workdays</legend>
-    <div>
-        <input type="checkbox" id="monday" name="workdays" value="monday">
-        <label for="monday">Monday</label>
-    </div>
-    <div>
-        <input type="checkbox" id="tuesday" name="workdays" value="tuesday">
-        <label for="tuesday">Tuesday</label>
-    </div>
-    <div>
-        <input type="checkbox" id="wednesday" name="workdays" value="wednesday">
-        <label for="wednesday">Wednesday</label>
-    </div>
-    <div>
-        <input type="checkbox" id="thursday" name="workdays" value="thursday">
-        <label for="thursday">Thursday</label>
-    </div>
-    <div>
-        <input type="checkbox" id="friday" name="workdays" value="friday">
-        <label for="friday">Friday</label>
-    </div>
-    <div>
-        <input type="checkbox" id="saturday" name="workdays" value="saturday">
-        <label for="saturday">Saturday</label>
-    </div>
-    <div>
-        <input type="checkbox" id="sunday" name="workdays" value="sunday">
-        <label for="sunday">Sunday</label>
-    </div>
-
-    <button id="reg_btn" type="f">Create semester</button>
-</form>
-
+        <legend style="font-weight: bold">Choose all workdays:</legend>
+        <div class="cb_container">
+            <input type="checkbox" id="monday" name="workdays" value="monday">
+            <label for="monday" style="font-weight: normal">Monday</label>
+        </div>
+        <div class="cb_container">
+            <input type="checkbox" id="tuesday" name="workdays" value="tuesday">
+            <label for="tuesday" style="font-weight: normal">Tuesday</label>
+        </div>
+        <div class="cb_container">
+            <input type="checkbox" id="wednesday" name="workdays" value="wednesday">
+            <label for="wednesday" style="font-weight: normal">Wednesday</label>
+        </div>
+        <div class="cb_container">
+            <input type="checkbox" id="thursday" name="workdays" value="thursday">
+            <label for="thursday" style="font-weight: normal">Thursday</label>
+        </div>
+        <div class="cb_container">
+            <input type="checkbox" id="friday" name="workdays" value="friday">
+            <label for="friday" style="font-weight: normal">Friday</label>
+        </div>
+        <div class="cb_container">
+            <input type="checkbox" id="saturday" name="workdays" value="saturday">
+            <label for="saturday" style="font-weight: normal">Saturday</label>
+        </div>
+        <div class="cb_container">
+            <input type="checkbox" id="sunday" name="workdays" value="sunday">
+            <label for="sunday" style="font-weight: normal">Sunday</label>
+        </div>
+        <div class="HcenterContainer">
+            <button id="reg_btn" type="f">Create semester</button>
+        </div>
+    </form>
+</div>
 </body>
+<style>
+    .header {
+        overflow: hidden;
+        background-color: #70ca86;
+        padding: 20px 10px;
+        border-radius: 20px;
+    }
+
+    .header a {
+        float: left;
+        color: black;
+        text-align: center;
+        padding: 12px;
+        text-decoration: none;
+        font-size: 18px;
+        line-height: 25px;
+        border-radius: 4px;
+    }
+
+    .logo {
+        color: aliceblue;
+        font-size: 45px;
+        font-weight: bold;
+        vertical-align: bottom;
+        display: inline;
+        margin-left: 30px;
+    }
+    .header a:hover {
+        background-color: #c1f1a4;
+        color: black;
+    }
+
+    .header-right {
+        float: right;
+    }
+
+    @media screen and (max-width: 500px) {
+        .header a {
+            float: none;
+            display: block;
+            text-align: left;
+        }
+        .header-right {
+            float: none;
+        }
+    }
+
+    input[type=text] {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    input[type=number], input[type=date] {
+        padding: 12px 20px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    button {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    .u_form {
+        width: fit-content;
+        background-color: beige;
+        padding: 5px 20px 20px 20px;
+        border-radius: 40px;
+    }
+
+    .HcenterContainer {
+        width: fit-content;
+        margin: 20px auto auto auto;
+    }
+
+    .cb_container {
+        padding: 3px;
+    }
+
+    input[type=checkbox] {
+        width: 20px;
+        height: 20px;
+    }
+
+    p {
+        font-size: 15px;
+    }
+</style>
 </html>

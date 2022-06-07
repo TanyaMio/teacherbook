@@ -5,22 +5,122 @@
     <title>Invite a teacher</title>
 </head>
 <body>
-<div id="header">
-    <a class="btn" href="../admin_home">Home</a>
-    <a class="btn" href="/logout" style="float: right">Log out</a>
+<div class="header">
+    <h2 class="logo">Teacherbook</h2>
+    <div class="header-right">
+        <a class="btn" href="../admin_home">Home</a>
+        <a class="btn" href="/logout" >Log out</a>
+    </div>
 </div>
-<form method="post">
-    <label for="name1"><b>First Name</b></label>
-    <input type="text" placeholder="Enter First name" name="name1" id="name1" required/>
-    <label for="name2"><b>Last Name</b></label>
-    <input type="text" placeholder="Enter Last name" name="name2" id="name2" required/>
-    <label for="email"><b>Email</b></label>
-    <input type="text" placeholder="Enter Email" name="email" id="email" required/>
-    <p>
-        <label for="psw"><b>Password</b></label>
-        <input type="password" placeholder="Enter Password" name="password" id="psw" required/>
-        <input type="password" placeholder="Confirm Password" name="password2" id="psw2" required/>
-        <button id="reg_btn" type="f">Invite</button>
-</form>
+<div class="u_form HcenterContainer">
+    <h2 style="color: black; font-weight: bold; font-size: 35px;">Teacher Registration</h2>
+    <form method="post">
+        <label class="form_el" for="name1"><b>First Name</b></label>
+        <br>
+        <input class="form_el" type="text" placeholder="Enter First name" name="name1" id="name1" required/>
+        <br>
+        <label class="form_el" for="name2"><b>Last Name</b></label>
+        <br>
+        <input class="form_el" type="text" placeholder="Enter Last name" name="name2" id="name2" required/>
+        <br>
+        <label class="form_el" for="email"><b>Email</b></label>
+        <br>
+        <input class="form_el" type="text" placeholder="Enter Email" name="email" id="email" required/>
+        <br>
+        <label class="form_el" for="psw"><b>Password</b></label>
+        <br>
+        <input class="form_el" type="password" placeholder="Enter Password" name="password" id="psw" required/>
+        <br>
+        <input class="form_el" type="password" placeholder="Confirm Password" name="password2" id="psw2" required/>
+        <div class="HcenterContainer">
+            <button id="reg_btn" type="f">Invite</button>
+        </div>
+    </form>
+</div>
+<style>
+    .header {
+        overflow: hidden;
+        background-color: #70ca86;
+        padding: 20px 10px;
+        border-radius: 20px;
+    }
+
+    .header a {
+        float: left;
+        color: black;
+        text-align: center;
+        padding: 12px;
+        text-decoration: none;
+        font-size: 18px;
+        line-height: 25px;
+        border-radius: 4px;
+    }
+
+    .logo {
+        color: aliceblue;
+        font-size: 45px;
+        font-weight: bold;
+        vertical-align: bottom;
+        display: inline;
+        margin-left: 30px;
+    }
+    .header a:hover {
+        background-color: #c1f1a4;
+        color: black;
+    }
+
+    .header-right {
+        float: right;
+    }
+
+    @media screen and (max-width: 500px) {
+        .header a {
+            float: none;
+            display: block;
+            text-align: left;
+        }
+        .header-right {
+            float: none;
+        }
+    }
+
+    .u_form {
+        width: fit-content;
+        background-color: beige;
+        padding: 5px 20px 20px 20px;
+        border-radius: 40px;
+    }
+
+    .HcenterContainer {
+        width: fit-content;
+        margin: 20px auto auto auto;
+    }
+
+    .form_el {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    input[type=text], input[type=password] {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    button {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+    }
+</style>
 </body>
 </html>

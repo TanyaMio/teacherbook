@@ -5,9 +5,12 @@
     <title>Teacher Information</title>
 </head>
 <body>
-<div id="header">
-    <a class="btn" href="./teacher_home">Home</a>
-    <a class="btn" href="/logout" style="float: right">Log out</a>
+<div class="header">
+    <h2 class="logo">Teacherbook</h2>
+    <div class="header-right">
+        <a class="btn" href="./teacher_home">Home</a>
+        <a class="btn" href="/logout">Log out</a>
+    </div>
 </div>
 <h2 th:text="${teacher.fullname}"></h2>
 <div>
@@ -16,7 +19,7 @@
 <script th:inline="javascript">
 
     function edit(e) {
-        e.hidden = true;
+        e.style.display = "none";
         var f = document.createElement("FORM");
         f.setAttribute("method", "post");
         f.setAttribute("action", "./edit_info");
@@ -97,5 +100,83 @@
         e.parentNode.append(f);
     }
 </script>
+
+<style>
+    .header {
+        overflow: hidden;
+        background-color: #70ca86;
+        padding: 20px 10px;
+        border-radius: 20px;
+    }
+
+    .header a {
+        float: left;
+        color: black;
+        text-align: center;
+        padding: 12px;
+        text-decoration: none;
+        font-size: 18px;
+        line-height: 25px;
+        border-radius: 4px;
+    }
+
+    .logo {
+        color: aliceblue;
+        font-size: 45px;
+        font-weight: bold;
+        vertical-align: bottom;
+        display: inline;
+        margin-left: 30px;
+    }
+    .header a:hover {
+        background-color: #c1f1a4;
+        color: black;
+    }
+
+    .header-right {
+        float: right;
+    }
+
+    @media screen and (max-width: 500px) {
+        .header a {
+            float: none;
+            display: block;
+            text-align: left;
+        }
+        .header-right {
+            float: none;
+        }
+    }
+
+    form {
+        padding: 15px;
+        background-color: beige;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    button {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 5px 10px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+    }
+
+    input, select {
+        width: 300px;
+        padding: 12px 20px;
+        margin: 8px 20px;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+</style>
 </body>
 </html>

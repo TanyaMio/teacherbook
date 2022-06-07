@@ -5,122 +5,229 @@
     <title>Manage Student Groups</title>
 </head>
 <body>
-<div id="header">
-    <a class="btn" href="../admin_home">Home</a>
-    <a class="btn" href="/logout" style="float: right">Log out</a>
-</div>
-<div class = groups_container>
-    <input id="groupInput" type="text" name="group_search" placeholder="Search groups">
-    <div class = groups th:each="group: ${groups}">
-        <a th:href="@{../group/{id}/group_view(id=${group.id})}" th:text="${group.name}" th:id="${group.id}"></a>
+<div class="header">
+    <h2 class="logo">Teacherbook</h2>
+    <div class="header-right">
+        <a class="btn" href="../admin_home">Home</a>
+        <a class="btn" href="/logout" style="float: right">Log out</a>
     </div>
 </div>
-<div>
-    <p>Create a new Group:</p>
+<h2 style="color: black; font-weight: bold; font-size: 35px; padding-left: 10px;">Groups Management</h2>
+<div style="background-color: beige; padding: 15px;">
+    <h3 style="padding-left: 10px;">Create a new Group:</h3>
     <form method="post" autocomplete="off">
-        <label for="name">Group Name</label>
+        <label for="name"><b>Group Name</b></label>
         <input type="text" placeholder="Enter group name" name="name" id="name" required/>
         <div class="autocomplete" style="width:300px;" id="stud">
             <input id="studentInput" type="text" name="student_search" placeholder="Search students">
         </div>
         <button id="save_btn" type="f">Save</button>
     </form>
-    <script th:inline="javascript">
-        function filter(inp) {
-            inp.addEventListener("input", function (e) {
-                var val = this.value;
-                var list = document.getElementsByClassName("groups");
-                if (!val) {
-                    for (var i=0; i<list.length; i++) {
-                        list.item(i).firstElementChild.removeAttribute("hidden");
-                    }
-                }
-                for (var i=0; i<list.length; i++) {
-                    if (list.item(i).firstElementChild.innerHTML.substr(0, val.length).toUpperCase() != val.toUpperCase()) {
-                        list.item(i).firstElementChild.setAttribute("hidden", "true");
-                    } else {
-                        list.item(i).firstElementChild.removeAttribute("hidden");
-                    }
-                }
-            })
-        }
-
-        function autocomplete(inp, arr_names, arr_val) {
-            var currentFocus;
-            inp.addEventListener("input", function(e) {
-                var a, b, i, val = this.value;
-                closeAllLists();
-                if (!val) { return false;}
-                currentFocus = -1;
-                a = document.createElement("DIV");
-                a.setAttribute("id", this.id + "autocomplete-list");
-                a.setAttribute("class", "autocomplete-items");
-                this.parentNode.appendChild(a);
-                for (i = 0; i < arr_names.length; i++) {
-                    if (arr_names[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
-                        b = document.createElement("DIV");
-                        b.innerHTML = "<strong>" + arr_names[i].substr(0, val.length) + "</strong>";
-                        b.innerHTML += arr_names[i].substr(val.length);
-                        b.innerHTML += "<input type='hidden' name='students' value='" + arr_val[i] + "'>";
-                        b.addEventListener("click", function(e) {
-                            this.innerHTML = this.innerHTML.replace("<strong>", "");
-                            this.innerHTML = this.innerHTML.replace("</strong>", "");
-                            var list = document.getElementById("stud")
-                            list.insertBefore(this, list.firstChild);
-                            closeAllLists();
-                        });
-                        a.appendChild(b);
-                    }
-                }
-            });
-
-            inp.addEventListener("keydown", function(e) {
-                var x = document.getElementById(this.id + "autocomplete-list");
-                if (x) x = x.getElementsByTagName("div");
-                if (e.keyCode == 40) {
-                    currentFocus++;
-                    addActive(x);
-                } else if (e.keyCode == 38) {
-                    currentFocus--;
-                    addActive(x);
-                } else if (e.keyCode == 13) {
-                    e.preventDefault();
-                    if (currentFocus > -1) {
-                        if (x) x[currentFocus].click();
-                    }
-                }
-            });
-            function addActive(x) {
-                if (!x) return false;
-                removeActive(x);
-                if (currentFocus >= x.length) currentFocus = 0;
-                if (currentFocus < 0) currentFocus = (x.length - 1);
-                x[currentFocus].classList.add("autocomplete-active");
-            }
-            function removeActive(x) {
-                for (var i = 0; i < x.length; i++) {
-                    x[i].classList.remove("autocomplete-active");
-                }
-            }
-            function closeAllLists(elmnt) {
-                var x = document.getElementsByClassName("autocomplete-items");
-                for (var i = 0; i < x.length; i++) {
-                    if (elmnt != x[i] && elmnt != inp) {
-                        x[i].parentNode.removeChild(x[i]);
-                    }
-                }
-            }
-            document.addEventListener("click", function (e) {
-                closeAllLists(e.target);
-            });
-        }
-
-
-        var studentnames = [[${studentnames}]];
-        var studentvalues = [[${studentvalues}]];
-        filter(document.getElementById("groupInput"));
-        autocomplete(document.getElementById("studentInput"), studentnames, studentvalues);
-    </script>
 </div>
+<div class = groups_container>
+    <h3 style="padding-left: 10px;">Search groups</h3>
+    <input id="groupInput" type="text" name="group_search" placeholder="Search groups">
+    <div class = groups th:each="group: ${groups}">
+        <a th:href="@{../group/{id}/group_view(id=${group.id})}" th:text="${group.name}" th:id="${group.id}"></a>
+    </div>
+</div>
+<script th:inline="javascript">
+    function filter(inp) {
+        inp.addEventListener("input", function (e) {
+            var val = this.value;
+            var list = document.getElementsByClassName("groups");
+            if (!val) {
+                for (var i=0; i<list.length; i++) {
+                    list.item(i).firstElementChild.removeAttribute("hidden");
+                }
+            }
+            for (var i=0; i<list.length; i++) {
+                if (list.item(i).firstElementChild.innerHTML.substr(0, val.length).toUpperCase() != val.toUpperCase()) {
+                    list.item(i).firstElementChild.setAttribute("hidden", "true");
+                } else {
+                    list.item(i).firstElementChild.removeAttribute("hidden");
+                }
+            }
+        })
+    }
+
+    function autocomplete(inp, arr_names, arr_val) {
+        var currentFocus;
+        inp.addEventListener("input", function(e) {
+            var a, b, i, val = this.value;
+            closeAllLists();
+            if (!val) { return false;}
+            currentFocus = -1;
+            a = document.createElement("DIV");
+            a.setAttribute("id", this.id + "autocomplete-list");
+            a.setAttribute("class", "autocomplete-items");
+            this.parentNode.appendChild(a);
+            for (i = 0; i < arr_names.length; i++) {
+                if (arr_names[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                    b = document.createElement("DIV");
+                    b.innerHTML = "<strong>" + arr_names[i].substr(0, val.length) + "</strong>";
+                    b.innerHTML += arr_names[i].substr(val.length);
+                    b.innerHTML += "<input type='hidden' name='students' value='" + arr_val[i] + "'>";
+                    b.classList.add("student_to_add");
+                    b.addEventListener("click", function(e) {
+                        this.innerHTML = this.innerHTML.replace("<strong>", "");
+                        this.innerHTML = this.innerHTML.replace("</strong>", "");
+                        this.classList.remove("student_to_add");
+                        this.classList.add("student_added");
+                        var list = document.getElementById("stud")
+                        list.insertBefore(this, list.firstChild);
+                        closeAllLists();
+                    });
+                    a.appendChild(b);
+                }
+            }
+        });
+
+        inp.addEventListener("keydown", function(e) {
+            var x = document.getElementById(this.id + "autocomplete-list");
+            if (x) x = x.getElementsByTagName("div");
+            if (e.keyCode == 40) {
+                currentFocus++;
+                addActive(x);
+            } else if (e.keyCode == 38) {
+                currentFocus--;
+                addActive(x);
+            } else if (e.keyCode == 13) {
+                e.preventDefault();
+                if (currentFocus > -1) {
+                    if (x) x[currentFocus].click();
+                }
+            }
+        });
+        function addActive(x) {
+            if (!x) return false;
+            removeActive(x);
+            if (currentFocus >= x.length) currentFocus = 0;
+            if (currentFocus < 0) currentFocus = (x.length - 1);
+            x[currentFocus].classList.add("autocomplete-active");
+        }
+        function removeActive(x) {
+            for (var i = 0; i < x.length; i++) {
+                x[i].classList.remove("autocomplete-active");
+            }
+        }
+        function closeAllLists(elmnt) {
+            var x = document.getElementsByClassName("autocomplete-items");
+            for (var i = 0; i < x.length; i++) {
+                if (elmnt != x[i] && elmnt != inp) {
+                    x[i].parentNode.removeChild(x[i]);
+                }
+            }
+        }
+        document.addEventListener("click", function (e) {
+            closeAllLists(e.target);
+        });
+    }
+
+
+    var studentnames = [[${studentnames}]];
+    var studentvalues = [[${studentvalues}]];
+    filter(document.getElementById("groupInput"));
+    autocomplete(document.getElementById("studentInput"), studentnames, studentvalues);
+</script>
+<style>
+    .header {
+        overflow: hidden;
+        background-color: #70ca86;
+        padding: 20px 10px;
+        border-radius: 20px;
+    }
+
+    .header a {
+        float: left;
+        color: black;
+        text-align: center;
+        padding: 12px;
+        text-decoration: none;
+        font-size: 18px;
+        line-height: 25px;
+        border-radius: 4px;
+    }
+
+    .logo {
+        color: aliceblue;
+        font-size: 45px;
+        font-weight: bold;
+        vertical-align: bottom;
+        display: inline;
+        margin-left: 30px;
+    }
+    .header a:hover {
+        background-color: #c1f1a4;
+        color: black;
+    }
+
+    .header-right {
+        float: right;
+    }
+
+    @media screen and (max-width: 500px) {
+        .header a {
+            float: none;
+            display: block;
+            text-align: left;
+        }
+        .header-right {
+            float: none;
+        }
+    }
+
+    input[type=text], input[type=password] {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    button {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+    }
+
+    .student_added {
+        width: fit-content;
+        background-color: #c1f1a4;
+        padding: 10px;
+        margin: 10px;
+    }
+
+    .student_to_add {
+        width: fit-content;
+        background-color: #f2de9f;
+        padding: 10px;
+        margin: 10px;
+    }
+
+    .groups {
+        padding: 10px;
+        margin: 10px;
+    }
+
+    .groups a {
+        background-color: beige;
+        padding: 10px;
+        margin: 10px;
+        color: black;
+        text-decoration: none;
+    }
+
+    .groups a:hover {
+        background-color: #c1f1a4;
+    }
+</style>
 </body>
 </html>

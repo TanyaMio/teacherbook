@@ -5,17 +5,19 @@
     <title>Student Home</title>
 </head>
 <body>
-<div id="header">
-    <a class="btn" href="/logout" style="float: right">Log out</a>
+<div class="header">
+    <h2 class="logo">Teacherbook</h2>
+    <div class="header-right">
+        <a class="btn" href="/logout">Log out</a>
+    </div>
 </div>
 <div>
-    <div>
-        <a href="./student_grades">My grades</a>
-        <br/>
-        <a href="./student_homework">My homework</a>
-    </div>
-    <div style="left: 10%; position: absolute; top: 0;">
+    <div style="padding: 15px;">
         <h2 th:text="@{Hello, {fname} {lname}!(fname=${student.first_name}, lname=${student.last_name})}"></h2>
+        <div class="container-main">
+            <a href="./student_grades">My grades</a>
+            <a href="./student_homework">My homework</a>
+        </div>
         <p>Here is your homework for the next week:</p>
         <ul>
             <li th:each="hw: ${homework}">
@@ -29,5 +31,67 @@
         </ul>
     </div>
 </div>
+<style>
+    .header {
+        overflow: hidden;
+        background-color: #70ca86;
+        padding: 20px 10px;
+        border-radius: 20px;
+    }
+
+    .header a {
+        float: left;
+        color: black;
+        text-align: center;
+        padding: 12px;
+        text-decoration: none;
+        font-size: 18px;
+        line-height: 25px;
+        border-radius: 4px;
+    }
+
+    .logo {
+        color: aliceblue;
+        font-size: 45px;
+        font-weight: bold;
+        vertical-align: bottom;
+        display: inline;
+        margin-left: 30px;
+    }
+    .header a:hover {
+        background-color: #c1f1a4;
+        color: black;
+    }
+
+    .header-right {
+        float: right;
+    }
+
+    @media screen and (max-width: 500px) {
+        .header a {
+            float: none;
+            display: block;
+            text-align: left;
+        }
+        .header-right {
+            float: none;
+        }
+    }
+    .container-main a {
+        background-color: #c1f1a4;
+        color: black;
+        text-align: center;
+        padding: 12px;
+        text-decoration: none;
+        font-size: 18px;
+        line-height: 25px;
+        border-radius: 4px;
+    }
+
+    .container-main {
+        padding: 10px;
+        margin: 10px;
+    }
+</style>
 </body>
 </html>

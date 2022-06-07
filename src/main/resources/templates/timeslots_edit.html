@@ -5,12 +5,16 @@
     <title>Timeslots</title>
 </head>
 <body>
-<div id="header">
-    <a class="btn" href="../../admin_home">Home</a>
-    <a class="btn" href="/logout" style="float: right">Log out</a>
+<div class="header">
+    <h2 class="logo">Teacherbook</h2>
+    <div class="header-right">
+        <a class="btn" href="../../admin_home">Home</a>
+        <a class="btn" href="/logout">Log out</a>
+    </div>
 </div>
+<h2 style="color: black; font-weight: bold; font-size: 35px; padding: 15px; margin: 0;">Edit Timeslots</h2>
 <form method="post">
-    <div th:each="timeslot: ${timeslots}">
+    <div class="inp_container" th:each="timeslot: ${timeslots}">
         <label th:text="${timeslot.name}"></label>
         <input type="text" placeholder="New name" name="timeslotname" th:id="${timeslot.id}" th:content="${timeslot.name}" />
         <input type="time" th:value="${timeslot.start_time}" name="time_start"/>
@@ -20,4 +24,86 @@
     <button id="submit_btn" type="f">Save</button>
 </form>
 </body>
+<style>
+    .header {
+        overflow: hidden;
+        background-color: #70ca86;
+        padding: 20px 10px;
+        border-radius: 20px;
+    }
+
+    .header a {
+        float: left;
+        color: black;
+        text-align: center;
+        padding: 12px;
+        text-decoration: none;
+        font-size: 18px;
+        line-height: 25px;
+        border-radius: 4px;
+    }
+
+    .logo {
+        color: aliceblue;
+        font-size: 45px;
+        font-weight: bold;
+        vertical-align: bottom;
+        display: inline;
+        margin-left: 30px;
+    }
+    .header a:hover {
+        background-color: #c1f1a4;
+        color: black;
+    }
+
+    .header-right {
+        float: right;
+    }
+
+    @media screen and (max-width: 500px) {
+        .header a {
+            float: none;
+            display: block;
+            text-align: left;
+        }
+        .header-right {
+            float: none;
+        }
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    input {
+        padding: 12px 20px;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    input[type=text] {
+        width: 300px;
+    }
+
+    input[type=time] {
+        width: 200px;
+    }
+
+    .inp_container {
+        padding: 10px;
+    }
+
+    button {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+    }
+</style>
 </html>
